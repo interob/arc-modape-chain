@@ -18,7 +18,7 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 # RUN cd /usr && chmod a+w src && cd /usr/src && rsync –-recursive /var/storage/mediakit/dependencies/* .
-COPY dependencies/* /usr/src/
+COPY assets/* /usr/src/
 
 RUN cd /usr/src && tar -xzf hdf-4.2.15.tar.gz && cd hdf-4.2.15 \
   && export CFLAGS="-fPIC" && export CXXFLAGS="-fPIC" && ./configure --disable-netcdf --disable-fortran \
