@@ -307,7 +307,7 @@ def do_processing(args, only_one_inc=False):
             break  # while True
 
 
-def app_setup(config):
+def app_setup(config: str) -> Flask:
     global app_state
     with open(config) as f:
         app_state = json.load(f)

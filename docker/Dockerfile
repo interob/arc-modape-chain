@@ -1,23 +1,23 @@
-FROM ubuntu:20.04
+FROM ubuntu:20.04 AS build
 ENV TZ=UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN apt-get update \
-  && apt-get install -y build-essential pkg-config git \
-  && apt-get install -y libssl-dev libcurl4-openssl-dev nginx \
-  && apt-get install -y swig sqlite3 \
-  && apt-get install -y python3-dev libsqlite3-dev python3-setuptools \
-  && apt-get install -y libtiff-dev \
-  && apt-get install -y bison flex unzip \
-  && apt-get install -y libnetcdf-dev libzstd-dev \
-  && apt-get install -y python3-pip python3-numpy python3-venv \
-  && apt-get install -y virtualenvwrapper \
+  && apt-get install -y \
+    build-essential pkg-config git \
+    libssl-dev libcurl4-openssl-dev nginx \
+    swig sqlite3 bison flex unzip \
+    libsqlite3-dev libtiff-dev libnetcdf-dev libzstd-dev \
+    python3-dev python3-pip \
   && cd /usr/local/bin \
-  && ln -s /usr/bin/python3 python \
-  && pip3 --no-cache-dir install --upgrade pip \
+  && ln -s $(readlink -f $(which python3)) python \
+  && cd /bin \
+  && ln -s $(readlink -f $(which python3)) python \
   && rm -rf /var/lib/apt/lists/*
 
-# RUN cd /usr && chmod a+w src && cd /usr/src && rsync –-recursive /var/storage/mediakit/dependencies/* .
+ENV PYTHONUNBUFFERED 1
+ENV CPUS 2
+
 COPY assets/* /usr/src/
 
 RUN cd /usr/src && tar -xzf hdf-4.2.15.tar.gz && cd hdf-4.2.15 \
@@ -25,24 +25,37 @@ RUN cd /usr/src && tar -xzf hdf-4.2.15.tar.gz && cd hdf-4.2.15 \
   && make && make install && cp -R hdf4 /opt \
   && ldconfig
 
+RUN cd /usr/src && tar -jxf geos-3.8.1.tar.bz2 && cd geos-3.8.1 \
+  && ./configure && make && make install \
+  && ldconfig
+
 RUN cd /usr/src && tar -xzf proj-7.2.0.tar.gz && cd proj-7.2.0 \
   && ./configure && make && make install \
   && ldconfig
 
-RUN cd /usr/src && tar -jxf geos-3.8.1.tar.bz2 && cd geos-3.8.1 \
-  && export PYTHON=/usr/bin/python3 \
-  && ./configure --enable-python && make && make install \
-  && ldconfig
+RUN PIP_ROOT_USER_ACTION=ignore pip --no-cache-dir install --upgrade pip
+RUN PIP_ROOT_USER_ACTION=ignore pip --no-cache-dir install \
+    cython \
+    gunicorn \
+    numpy \
+  && PIP_ROOT_USER_ACTION=ignore pip --no-cache-dir install \
+    "setuptools~=57.5.0" \
+    "h5py>=2.9" \
+    "pandas>=0.24" \
+    "click==7.1.2" \
+    "flask==2.0.3" \
+    "python-cmr>=0.4" \
+    "requests>=2" \
+    "pycksum>=0.4.3"
 
 RUN cd /usr/src && tar -xzf gdal-3.2.0.tar.gz && cd gdal-3.2.0 \
   && ./configure --with-hdf4=/opt/hdf4 --with-python --with-netcdf --with-liblzma --with-libzstd \
   && CPPFLAGS=-I/opt/hdf4/include make && make install \
   && ldconfig
 
-RUN python -m pip install numpy>=1.16.1 h5py>=2.9 pandas>=0.24 click==7.1.2
-RUN python -m pip install cython gunicorn flask==2.0.3 gdal==3.2.0
-RUN python -m pip install python-cmr>=0.4 requests>=2 pycksum>=0.4.3
+RUN PIP_ROOT_USER_ACTION=ignore pip install gdal==3.2.0
 
+FROM build AS production
 ARG USERNAME=worker
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID

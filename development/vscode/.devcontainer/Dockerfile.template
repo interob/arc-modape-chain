@@ -1,0 +1,12 @@
+FROM build AS development
+RUN apt-get update -y && \
+    apt-get install -y \
+      gawk sudo \
+      iputils-ping \
+      postgresql-client
+
+RUN useradd --home-dir /home/{{user}} -mUl {{user}}
+RUN adduser {{user}} sudo
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+USER {{user}}
+ENV PATH="$PATH:/home/{{user}}/.local/bin"
