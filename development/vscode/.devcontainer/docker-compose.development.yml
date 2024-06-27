@@ -7,15 +7,14 @@ services:
   arc_modape_chain:
     build:
       dockerfile: "{{dockerfile}}"
-      context: ../docker
+      context: ../src/docker
       target: development
     container_name: arc_modape_chain_devcontainer
     ports:
       - "8080:5001"
       - "8001:8001"
+    user: {{user}}
     restart: unless-stopped
     command: /usr/bin/tail -f /dev/null
     volumes:
-      - ../:/arc_modape_chain
-#      - /var/data/rvo/AMViewer/bigstorage:/var/bigstorage
-#      - /var/data/rvo/AMViewer/leveringen:/var/bigstorage/amviewer
+      - ../:/arc-modape-chain
