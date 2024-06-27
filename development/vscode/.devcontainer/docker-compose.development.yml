@@ -18,3 +18,4 @@ services:
     command: /usr/bin/tail -f /dev/null
     volumes:
       - ../:/arc-modape-chain
+      - ../../../:/private
