@@ -16,6 +16,8 @@ services:
     user: {{user}}
     restart: unless-stopped
     command: /usr/bin/tail -f /dev/null
+    environment:
+      - PYTHONUNBUFFERED=1
     volumes:
       - ../:/arc-modape-chain
       - ../../../:/private
