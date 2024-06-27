@@ -11,5 +11,5 @@
     "updateRemoteUserUID": true,
 
     "workspaceFolder": "/arc-modape-chain/src",
-    "postCreateCommand": "PIP_ROOT_USER_ACTION=ignore sudo pip install --upgrade pip && cd /arc_modape_chain/modape && PIP_ROOT_USER_ACTION=ignore sudo pip install -e . && cd /arc_modape_chain/src && PIP_ROOT_USER_ACTION=ignore pip install -e .[dev]",
+    "postCreateCommand": "PIP_ROOT_USER_ACTION=ignore sudo pip install --upgrade pip && cd /arc-modape-chain/modape && PIP_ROOT_USER_ACTION=ignore sudo pip install -e . && cd /arc-modape-chain/src && PIP_ROOT_USER_ACTION=ignore pip install -e .[dev]"
 }
