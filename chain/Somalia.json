@@ -1,0 +1,30 @@
+{
+  "app_name": "Africa MODIS NDVI @1km -- DEVELOPMENT",
+  "nsmooth": 64,
+  "nupdate": 3,
+  "username": "africanriskcapacity",
+  "password": "Nasa4ARC!",
+  "basedir": "/private/arc-modape-somalia",
+  "tile_filter": [
+    "h22v07",
+    "h22v08",
+    "h22v09",
+    "h23v07",
+    "h23v08"
+  ],
+  "collection": "061",
+  "init_start_date": "2021-01-01",
+  "init_end_date": "2024-02-21",
+  "expected_latency": 259200,
+  "log_endpoint": "https://api.africariskview.org/log",
+  "log_secret": "TTY665DE9U",
+  "log_source": "MODAPE Chain",
+  "log_channel": "DATASETS",
+  "file_pattern": "*.tif",
+  "mimetype": "application/octet-stream",
+  "_comment_export": "[ minx, miny, maxx, maxy ]",
+  "export": {
+    "SOMALIA": [40.0, 2.0, 52.0, 12.0]
+  }
+}
+
