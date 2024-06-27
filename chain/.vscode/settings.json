@@ -1,9 +1,0 @@
-{
-    "python.linting.pylintEnabled": true,
-    "python.linting.enabled": true,
-    "terminal.integrated.profiles.linux": {
-      "bash": {
-        "path": "/bin/bash"
-      }
-    }
-}

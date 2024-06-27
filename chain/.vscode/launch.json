@@ -6,47 +6,33 @@
     "configurations": [
         {
             "name": "init download only",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
-            "program": "arc_modis_ndvi.py",
+            "program": "${workspaceFolder}/src/arc_modape_chain.py",
             "args": ["--config", "dev.json", "init", "--download-only"],
             "console": "integratedTerminal"
         },
         {
             "name": "download next",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
-            "program": "arc_modis_ndvi.py",
+            "program": "${workspaceFolder}/src/arc_modape_chain.py",
             "args": ["--config", "dev.json", "download"],
             "console": "integratedTerminal"
         },
         {
             "name": "check production archive",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
-            "program": "arc_modis_ndvi.py",
+            "program": "${workspaceFolder}/src/arc_modape_chain.py",
             "args": ["--config", "production.example.json", "check"],
             "console": "integratedTerminal"
         },
         {
-            "name": "test download",
-            "type": "python",
-            "request": "launch",
-            "program": "test_download.py",
-            "console": "integratedTerminal"
-        },
-        {
-            "name": "test download per cookiejar",
-            "type": "python",
-            "request": "launch",
-            "program": "test_per_cookiejar.py",
-            "console": "integratedTerminal"
-        },
-        {
             "name": "test modis_download",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
-            "program": "/workspaces/modape/modape/scripts/modis_download.py",
+            "program": "${workspaceFolder}/modape/modape/scripts/modis_download.py",
             "args": [
                 "--download", "--multithread", "--nthreads", "4",
                 "--username=africanriskcapacity", "--password=Nasa4ARC!",
