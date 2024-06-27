@@ -31,9 +31,7 @@ _log = logging.getLogger(__name__ + "_echo_through_log")
 _log.propagate = False
 h = logging.StreamHandler()
 h.setLevel(os.environ.get("LOGLEVEL", "INFO"))
-h.setFormatter(
-    logging.Formatter("[%(asctime)s ECHO] - %(message)s", "%Y-%m-%d %H:%M:%S")
-)
+h.setFormatter(logging.Formatter("[%(asctime)s ECHO] - %(message)s", "%Y-%m-%d %H:%M:%S"))
 _log.addHandler(h)
 
 
@@ -47,9 +45,7 @@ log = logging.getLogger(__name__)
 log.propagate = False
 h = logging.StreamHandler()
 h.setLevel(os.environ.get("LOGLEVEL", "INFO"))
-h.setFormatter(
-    logging.Formatter("[%(asctime)s %(levelname)s] - %(message)s", "%Y-%m-%d %H:%M:%S")
-)
+h.setFormatter(logging.Formatter("[%(asctime)s %(levelname)s] - %(message)s", "%Y-%m-%d %H:%M:%S"))
 log.addHandler(h)
 
 from datetime import date, datetime
@@ -112,17 +108,13 @@ def exists_smooth_h5s(tiles, basedir, collection):
 
 def app_index():
     global app_state
-    if app_state.fetcherThread.is_alive() and not getattr(
-        app_state, "suspended", False
-    ):
+    if app_state.fetcherThread.is_alive() and not getattr(app_state, "suspended", False):
         return "Fetcher is running (or suspended), try again later\n", 503
     else:
         files = {}
         for f in sorted(
             glob.glob(
-                os.path.join(
-                    app_state.basedir, "VIM", "SMOOTH", "EXPORT", app_state.file_pattern
-                )
+                os.path.join(app_state.basedir, "VIM", "SMOOTH", "EXPORT", app_state.file_pattern)
             )
         ):
             if os.path.isfile(f + ".md5"):
@@ -133,9 +125,7 @@ def app_index():
 
 def app_download(filename):
     global app_state
-    if app_state.fetcherThread.is_alive() and not getattr(
-        app_state, "suspended", False
-    ):
+    if app_state.fetcherThread.is_alive() and not getattr(app_state, "suspended", False):
         return "Fetcher is running (or suspended), try again later\n", 503
     else:
         try:
@@ -268,15 +258,9 @@ def do_processing(args, only_one_inc=False):
                                 ),
                                 urlencode(
                                     {
-                                        "secret": getattr(
-                                            args, "log_secret", "TTY665DE9U"
-                                        ),
-                                        "source": getattr(
-                                            args, "log_source", "MODAPE Chain"
-                                        ),
-                                        "channel": getattr(
-                                            args, "log_channel", "DATASETS"
-                                        ),
+                                        "secret": getattr(args, "log_secret", "TTY665DE9U"),
+                                        "source": getattr(args, "log_source", "MODAPE Chain"),
+                                        "channel": getattr(args, "log_channel", "DATASETS"),
                                         "topic": "Latency",
                                         "level": 4,
                                         "msg": "Unexpected delay",
@@ -295,14 +279,11 @@ def do_processing(args, only_one_inc=False):
                 break  # while True
 
         if getattr(args, "collect_only", False) or (
-            not getattr(args, "smooth_only", False)
-            and not getattr(args, "export_only", False)
+            not getattr(args, "smooth_only", False) and not getattr(args, "export_only", False)
         ):
 
             # check download completeness:
-            if not curate_downloads(
-                args.basedir, args.tile_filter, next_date, next_date
-            ):
+            if not curate_downloads(args.basedir, args.tile_filter, next_date, next_date):
                 latency = datetime.now() - datetime.combine(
                     next_date + relativedelta(days=16), datetime.min.time()
                 )
@@ -317,9 +298,7 @@ def do_processing(args, only_one_inc=False):
                             urlencode(
                                 {
                                     "secret": getattr(args, "log_secret", "TTY665DE9U"),
-                                    "source": getattr(
-                                        args, "log_source", "MODAPE Chain"
-                                    ),
+                                    "source": getattr(args, "log_source", "MODAPE Chain"),
                                     "channel": getattr(args, "log_channel", "DATASETS"),
                                     "topic": "Latency",
                                     "level": 4,
@@ -356,9 +335,7 @@ def do_processing(args, only_one_inc=False):
                 break
 
         # smooth by N/n
-        if getattr(args, "smooth_only", False) or (
-            not getattr(args, "export_only", False)
-        ):
+        if getattr(args, "smooth_only", False) or (not getattr(args, "export_only", False)):
 
             modis_smooth.callback(
                 src=os.path.join(args.basedir, "VIM"),
@@ -392,12 +369,8 @@ def do_processing(args, only_one_inc=False):
             nexports = nexports + 1
             export_octad = export_octad.prev()
 
-        first_date = get_first_date_in_raw_modis_tiles(
-            os.path.join(args.basedir, "VIM")
-        )
-        while (
-            not export_dekad.startsBeforeDate(first_date)
-        ) and nexports <= args.nupdate:
+        first_date = get_first_date_in_raw_modis_tiles(os.path.join(args.basedir, "VIM"))
+        while (not export_dekad.startsBeforeDate(first_date)) and nexports <= args.nupdate:
 
             for region, roi in args.export.items():
                 if getattr(args, "region_only", region) != region:
@@ -428,9 +401,7 @@ def do_processing(args, only_one_inc=False):
                         "yRes": 0.01,
                         "metadataOptions": [
                             "CONSOLIDATION_STAGE={}".format(nexports - 1),
-                            "FINAL={}".format(
-                                "FALSE" if nexports < args.nupdate else "TRUE"
-                            ),
+                            "FINAL={}".format("FALSE" if nexports < args.nupdate else "TRUE"),
                         ],
                     },
                     overwrite=True,
@@ -512,9 +483,7 @@ def serve(ctx) -> None:
         assert (
             ctx.obj["REGION"] is None
         ), "Cannot serve only a specific region! Please run with the debug flag."
-        flask_app.run(
-            port=5001, threaded=False
-        )  # Configure for single threaded request handling
+        flask_app.run(port=5001, threaded=False)  # Configure for single threaded request handling
 
 
 @cli.command()
@@ -525,9 +494,7 @@ def export(ctx) -> None:
     args = Namespace(**args)
 
     # Check all tiles for a corresponding H5 archive in VIM/SMOOTH:
-    assert exists_smooth_h5s(
-        args.tile_filter, args.basedir, getattr(args, "collection", "006")
-    )
+    assert exists_smooth_h5s(args.tile_filter, args.basedir, getattr(args, "collection", "006"))
 
     if ctx.obj["REGION"]:
         args.region_only = ctx.obj["REGION"]
@@ -609,12 +576,8 @@ def check(ctx) -> None:
         else:
             products_parsed.append(product_code.upper())
 
-    begin_date = ModisInterleavedOctad(
-        datetime.strptime(args.init_start_date, "%Y-%m-%d").date()
-    )
-    end_date = min(
-        [date.today(), begin_date.nextYear().prev().getDateTimeStart().date()]
-    )
+    begin_date = ModisInterleavedOctad(datetime.strptime(args.init_start_date, "%Y-%m-%d").date())
+    end_date = min([date.today(), begin_date.nextYear().prev().getDateTimeStart().date()])
     begin_date = begin_date.getDateTimeStart().date()
     while begin_date < end_date:
         log.info("Querying: {} - {}...".format(begin_date, end_date))
@@ -649,9 +612,7 @@ def check(ctx) -> None:
 
         # move on:
         begin_date = ModisInterleavedOctad(end_date).next()
-        end_date = min(
-            [date.today(), begin_date.nextYear().prev().getDateTimeStart().date()]
-        )
+        end_date = min([date.today(), begin_date.nextYear().prev().getDateTimeStart().date()])
         begin_date = begin_date.getDateTimeStart().date()
 
 
@@ -678,9 +639,7 @@ def init(ctx, download_only, smooth_only, export_only) -> None:
 
 
 def do_init(args):
-    if not getattr(args, "smooth_only", False) and not getattr(
-        args, "export_only", False
-    ):
+    if not getattr(args, "smooth_only", False) and not getattr(args, "export_only", False):
         # Download and Collect:
         # ---------------------
 
@@ -695,9 +654,7 @@ def do_init(args):
         end_date = datetime.strptime(args.init_end_date, "%Y-%m-%d").date()
         if not getattr(args, "download_only", False):
             # We can do incremental processing if we're not restricted to downloading only:
-            end_date = min(
-                [end_date, begin_date.nextYear().prev().getDateTimeStart().date()]
-            )
+            end_date = min([end_date, begin_date.nextYear().prev().getDateTimeStart().date()])
 
         begin_date = begin_date.getDateTimeStart().date()
         while begin_date < end_date:
@@ -737,50 +694,38 @@ def do_init(args):
             if any_download_missing:
                 return
 
-            if not getattr(args, "download_only", False):
-                # Check download: for ALL distinct dates: is there a download for EACH selected tile? 2022-03-11: we allow 1 missing
-                if not curate_downloads(
-                    args.basedir, args.tile_filter, begin_date, end_date, 0
-                ):
-                    return
+            if getattr(args, "download_only", False):
+                return
+            # Check download: for ALL distinct dates: is there a download for EACH selected tile? 2022-03-11: we allow 1 missing
+            if not curate_downloads(args.basedir, args.tile_filter, begin_date, end_date, 0):
+                return
 
-                # We're OK; now collect;
-                modis_collect.callback(
-                    src_dir=args.basedir,
-                    targetdir=args.basedir,  # modape appends VIM to the targetdir
-                    compression="gzip",
-                    vam_code="VIM",
-                    interleave=True,
-                    parallel_tiles=1,
-                    cleanup=True,
-                    force=False,
-                    last_collected=None,
-                    tiles_required=",".join(args.tile_filter),
-                )
+            # We're OK; now collect;
+            modis_collect.callback(
+                src_dir=args.basedir,
+                targetdir=args.basedir,  # modape appends VIM to the targetdir
+                compression="gzip",
+                vam_code="VIM",
+                interleave=True,
+                parallel_tiles=1,
+                cleanup=True,
+                force=False,
+                last_collected=None,
+                tiles_required=",".join(args.tile_filter),
+            )
 
-                # move on:
-                begin_date = get_last_date_in_raw_modis_tiles(
-                    os.path.join(args.basedir, "VIM")
-                )
-                begin_date = ModisInterleavedOctad(begin_date).next()
-                end_date = min(
-                    [
-                        datetime.strptime(args.init_end_date, "%Y-%m-%d").date(),
-                        begin_date.nextYear().prev().getDateTimeStart().date(),
-                    ]
-                )
-                begin_date = begin_date.getDateTimeStart().date()
-            else:
-                begin_date = (
-                    ModisInterleavedOctad(begin_date).next().getDateTimeStart().date()
-                )
+            # move on:
+            begin_date = get_last_date_in_raw_modis_tiles(os.path.join(args.basedir, "VIM"))
+            begin_date = ModisInterleavedOctad(begin_date).next()
+            end_date = min(
+                [
+                    datetime.strptime(args.init_end_date, "%Y-%m-%d").date(),
+                    begin_date.nextYear().prev().getDateTimeStart().date(),
+                ]
+            )
+            begin_date = begin_date.getDateTimeStart().date()
 
-        if getattr(args, "download_only", False):
-            return
-
-    if not exists_smooth_h5s(
-        args.tile_filter, args.basedir, getattr(args, "collection", "006")
-    ):
+    if not exists_smooth_h5s(args.tile_filter, args.basedir, getattr(args, "collection", "006")):
         # Smooth and interpolate the collected archive
         # --------------------------------------------
 
@@ -800,9 +745,7 @@ def do_init(args):
                 os.path.join(
                     args.basedir,
                     "VIM",
-                    "MXD13A2.{}.{}.VIM.h5".format(
-                        tile, getattr(args, "collection", "006")
-                    ),
+                    "MXD13A2.{}.{}.VIM.h5".format(tile, getattr(args, "collection", "006")),
                 ),
                 dates,
             )
@@ -829,9 +772,7 @@ def do_init(args):
     # ------------------------
 
     # Check all tiles for a corresponding H5 archive in VIM/SMOOTH:
-    assert exists_smooth_h5s(
-        args.tile_filter, args.basedir, getattr(args, "collection", "006")
-    )
+    assert exists_smooth_h5s(args.tile_filter, args.basedir, getattr(args, "collection", "006"))
 
     first_date = max(
         [
@@ -840,8 +781,7 @@ def do_init(args):
         ]
     )
     last_date = datetime.combine(
-        get_last_date_in_raw_modis_tiles(os.path.join(args.basedir, "VIM"))
-        + relativedelta(days=8),
+        get_last_date_in_raw_modis_tiles(os.path.join(args.basedir, "VIM")) + relativedelta(days=8),
         datetime.min.time(),
     )
 
@@ -855,15 +795,10 @@ def do_init(args):
         if cnt == 9 or to_slice.next().getDateTimeMid() > last_date:
             # Batch-wise export: 9 dekads at a time
             for region, roi in args.export.items():
-                if (
-                    hasattr(args, "this_region_only")
-                    and args.this_region_only != region
-                ):
+                if hasattr(args, "this_region_only") and args.this_region_only != region:
                     continue
                 log.info(
-                    "{} -- Exporting {} to {} ...".format(
-                        region, str(export_slice), str(to_slice)
-                    )
+                    "{} -- Exporting {} to {} ...".format(region, str(export_slice), str(to_slice))
                 )
                 exports = modis_window.callback(
                     src=os.path.join(args.basedir, "VIM", "SMOOTH"),

@@ -8,8 +8,8 @@
             "name": "init download only",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/src/arc_modape_chain.py",
-            "args": ["--config", "dev.json", "init", "--download-only"],
+            "program": "${workspaceFolder}/src/chain/arc_modape_chain.py",
+            "args": ["--config", "${workspaceFolder}/src/chain/Somalia.json", "init", "--download-only"],
             "console": "integratedTerminal"
         },
         {
