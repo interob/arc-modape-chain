@@ -10,3 +10,10 @@ ln -s src/development/vscode/.devcontainer/devcontainer.json ./.devcontainer/dev
 ```
 
 Now open the ./arc-modape-chain folder and confirm you wish to Open in Container
+
+# Source Control
+When developing inside a Docker container, provide minimum git configuration like so:
+```
+git config --global user.name "<name>"
+git config --global user.email "<email>"
+```
