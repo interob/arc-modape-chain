@@ -33,27 +33,44 @@ RUN cd /usr/src && tar -xzf proj-7.2.0.tar.gz && cd proj-7.2.0 \
   && ./configure && make && make install \
   && ldconfig
 
-RUN PIP_ROOT_USER_ACTION=ignore pip --no-cache-dir install --upgrade pip
-RUN PIP_ROOT_USER_ACTION=ignore pip --no-cache-dir install \
-    cython \
-    gunicorn \
-    numpy \
-  && PIP_ROOT_USER_ACTION=ignore pip --no-cache-dir install \
-    "setuptools~=57.5.0" \
-    "h5py>=2.9" \
-    "pandas>=0.24" \
-    "click==7.1.2" \
-    "flask==2.0.3" \
-    "python-cmr>=0.4" \
-    "requests>=2" \
-    "pycksum>=0.4.3"
+RUN PIP_ROOT_USER_ACTION=ignore pip \
+    --trusted-host pypi.org \
+    --trusted-host pypi.python.org \
+    --trusted-host files.pythonhosted.org \
+    --no-cache-dir install --upgrade pip
+RUN PIP_ROOT_USER_ACTION=ignore pip \
+    --trusted-host pypi.org \
+    --trusted-host pypi.python.org \
+    --trusted-host files.pythonhosted.org \
+    --no-cache-dir install \
+      cython \
+      gunicorn \
+      numpy \
+  && PIP_ROOT_USER_ACTION=ignore pip \
+    --trusted-host pypi.org \
+    --trusted-host pypi.python.org \
+    --trusted-host files.pythonhosted.org \
+    --no-cache-dir install \
+      "setuptools~=57.5.0" \
+      "h5py>=2.9" \
+      "pandas>=0.24" \
+      "click==7.1.2" \
+      "flask==2.0.3" \
+      "python-cmr>=0.4" \
+      "requests>=2" \
+      "pycksum>=0.4.3"
 
 RUN cd /usr/src && tar -xzf gdal-3.2.0.tar.gz && cd gdal-3.2.0 \
   && ./configure --with-hdf4=/opt/hdf4 --with-python --with-netcdf --with-liblzma --with-libzstd \
   && CPPFLAGS=-I/opt/hdf4/include make && make install \
   && ldconfig
 
-RUN PIP_ROOT_USER_ACTION=ignore pip install gdal==3.2.0
+RUN PIP_ROOT_USER_ACTION=ignore pip \
+    --trusted-host pypi.org \
+    --trusted-host pypi.python.org \
+    --trusted-host files.pythonhosted.org \
+    --no-cache-dir install \
+      gdal==3.2.0
 
 FROM build AS production
 ARG USERNAME=worker

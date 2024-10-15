@@ -11,7 +11,7 @@
     "updateRemoteUserUID": true,
 
     "workspaceFolder": "/arc-modape-chain",
-    "postCreateCommand": "PIP_ROOT_USER_ACTION=ignore sudo pip install --upgrade pip && cd /arc-modape-chain/modape && PIP_ROOT_USER_ACTION=ignore sudo pip install -e . && cd /arc-modape-chain/src && PIP_ROOT_USER_ACTION=ignore sudo pip install -e .[dev]",
+    "postCreateCommand": "PIP_ROOT_USER_ACTION=ignore sudo pip --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org install --upgrade pip && cd /arc-modape-chain/modape && PIP_ROOT_USER_ACTION=ignore sudo pip --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org install -e . && cd /arc-modape-chain/src && PIP_ROOT_USER_ACTION=ignore sudo pip --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org install -e .[dev]",
     "customizations": {
         "vscode": {
             "extensions": [
@@ -19,7 +19,8 @@
                 "eamodio.gitlens",
                 "ms-python.vscode-pylance",
                 "ms-python.black-formatter",
-                "ms-python.isort"
+                "ms-python.isort",
+                "ms-azuretools.vscode-docker"
             ],
             "settings": {
                 "terminal.integrated.env.linux": {
