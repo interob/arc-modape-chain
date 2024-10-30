@@ -5,11 +5,55 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "init download only",
+            "name": "init: download only",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/chain/arc_modape_chain.py",
-            "args": ["--config", "${workspaceFolder}/src/chain/Somalia.json", "init", "--download-only"],
+            "args": [
+                "--config",
+                "${workspaceFolder}/src/chain/Somalia.json",
+                "init",
+                "--download-only"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "init: download & collect",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/chain/arc_modape_chain.py",
+            "args": [
+                "--config",
+                "${workspaceFolder}/src/chain/Somalia.json",
+                "init",
+                "--download-and-collect-only"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "init: smooth",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/chain/arc_modape_chain.py",
+            "args": [
+                "--config",
+                "${workspaceFolder}/src/chain/Somalia.json",
+                "init",
+                "--smooth-only"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "init: export",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/chain/arc_modape_chain.py",
+            "args": [
+                "--config",
+                "${workspaceFolder}/src/chain/Somalia.json",
+                "init",
+                "--export-only"
+            ],
             "console": "integratedTerminal"
         },
         {

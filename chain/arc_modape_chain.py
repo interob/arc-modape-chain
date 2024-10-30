@@ -240,6 +240,7 @@ def do_processing(args, only_one_inc=False):
                 multithread=True,
                 nthreads=4,
                 collection=getattr(args, "collection", "006"),
+                mirror=getattr(args, "mirror", None),
             )
 
             # anything downloaded?
@@ -618,10 +619,11 @@ def check(ctx) -> None:
 
 @cli.command()
 @click.option("--download-only", is_flag=True, default=False)
+@click.option("--download-and-collect-only", is_flag=True, default=False)
 @click.option("--smooth-only", is_flag=True, default=False)
 @click.option("--export-only", is_flag=True, default=False)
 @click.pass_context
-def init(ctx, download_only, smooth_only, export_only) -> None:
+def init(ctx, download_only, download_and_collect_only, smooth_only, export_only) -> None:
     with open(ctx.obj["CONFIG"]) as f:
         args = json.load(f)
     args = Namespace(**args)
@@ -633,12 +635,13 @@ def init(ctx, download_only, smooth_only, export_only) -> None:
         args.region_only = ctx.obj["REGION"]
 
     args.download_only = download_only
+    args.download_and_collect_only = download_and_collect_only
     args.smooth_only = smooth_only
     args.export_only = export_only
     do_init(args)
 
 
-def do_init(args):
+def do_init(args: Namespace):
     if not getattr(args, "smooth_only", False) and not getattr(args, "export_only", False):
         # Download and Collect:
         # ---------------------
@@ -681,6 +684,7 @@ def do_init(args):
                 multithread=True,
                 nthreads=4,
                 collection=getattr(args, "collection", "006"),
+                mirror=getattr(args, "mirror", None),
             )
             if len(downloads) == 0:
                 break
@@ -724,6 +728,9 @@ def do_init(args):
                 ]
             )
             begin_date = begin_date.getDateTimeStart().date()
+
+    if getattr(args, "download_and_collect_only", False):
+        return
 
     if not exists_smooth_h5s(args.tile_filter, args.basedir, getattr(args, "collection", "006")):
         # Smooth and interpolate the collected archive

@@ -1,10 +1,11 @@
 {
-  "app_name": "Africa MODIS NDVI @1km -- DEVELOPMENT",
+  "app_name": "Africa MODIS NDVI @1km -- REPRODUCTION CONFIG",
   "nsmooth": 64,
-  "nupdate": 3,
+  "nupdate": 6,
   "username": "africanriskcapacity",
   "password": "Nasa4ARC!",
   "basedir": "/private/arc-modape-somalia/chain",
+  "mirror": "/private/arc-modape-somalia/mirror",
   "tile_filter": [
     "h22v07",
     "h22v08",
