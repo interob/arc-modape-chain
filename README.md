@@ -2,9 +2,9 @@
 # Development using VS Code (containerized)
 Getting Started:
 ```
-mkdir -p ./arc-modape-chain
+mkdir arc-modape-chain && cd arc-modape-chain
 git clone https://github.com/interob/arc-modape-chain.git src
-git clone https://github.com/WFP-VAM/modape.git modape
+git clone https://github.com/interob/modape.git modape
 mkdir .devcontainer
 ln -s src/development/vscode/.devcontainer/devcontainer.json ./.devcontainer/devcontainer.json
 ```
