@@ -102,7 +102,7 @@ then
   python modis_smooth.py --soptimize --tempint 10 \
     --last-collected 2024049 -d ./VIM/SMOOTH ./VIM
   python modis_window.py -b 2021-01-05 -e 2024-02-25 --clip-valid --round-int 2 --region SOM \
-    --roi -26.0,-35.0,60.0,38.0 --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
+    --roi 40.0,-2.0,52.0,12.0 --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --last-smoothed 2024049 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
 fi
 
@@ -110,6 +110,7 @@ fi
 if [ $resuming_from -le 2024049 ]
 then
   python modis_download.py --download --multithread \
+    --mirror /private/arc-modape-somalia/mirror \
     --username=$CMR_USERNAME --password=$CMR_PASSWORD \
     --robust --target-empty --match-begin --tile-filter $TILES \
     --collection 061 -b 2024-02-26 -e 2024-02-26 M?D13A2
@@ -117,11 +118,11 @@ then
   python modis_smooth.py --nsmooth 64 --nupdate 6 --tempint 10 \
     --last-collected 2024057 -d ./VIM/SMOOTH ./VIM
   python modis_window.py -b 2024-02-25 -e 2024-02-25 --clip-valid --round-int 2 \
-    --roi -26.0,-35.0,60.0,38.0 --region SOM \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024057 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
   python modis_window.py -b 2024-02-15 -e 2024-02-15 --clip-valid --round-int 2 \
-    --roi -26.0,-35.0,60.0,38.0 --region SOM \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024057 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
 fi
@@ -130,6 +131,7 @@ fi
 if [ $resuming_from -le 2024057 ]
 then
   python modis_download.py --download --multithread \
+    --mirror /private/arc-modape-somalia/mirror \
     --username=$CMR_USERNAME --password=$CMR_PASSWORD \
     --robust --target-empty --match-begin --tile-filter $TILES \
     --collection 061 -b 2024-03-05 -e 2024-03-05 M?D13A2
@@ -137,11 +139,11 @@ then
   python modis_smooth.py --nsmooth 64 --nupdate 6 --tempint 10 \
     --last-collected 2024065 -d ./VIM/SMOOTH ./VIM
   python modis_window.py -b 2024-03-05 -e 2024-03-05 --clip-valid --round-int 2 \
-    --roi -26.0,-35.0,60.0,38.0 --region SOM \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024065 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
   python modis_window.py -b 2024-02-25 -e 2024-02-25 --clip-valid --round-int 2 \
-    --roi -26.0,-35.0,60.0,38.0 --region SOM \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024065 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
 fi
@@ -150,6 +152,7 @@ fi
 if [ $resuming_from -le 2024065 ]
 then
   python modis_download.py --download --multithread \
+    --mirror /private/arc-modape-somalia/mirror \
     --username=$CMR_USERNAME --password=$CMR_PASSWORD \
     --robust --target-empty --match-begin --tile-filter $TILES \
     --collection 061 -b 2024-03-13 -e 2024-03-13 M?D13A2
@@ -157,11 +160,11 @@ then
   python modis_smooth.py --nsmooth 64 --nupdate 6 --tempint 10 \
     --last-collected 2024073 -d ./VIM/SMOOTH ./VIM
   python modis_window.py -b 2024-03-15 -e 2024-03-15 --clip-valid --round-int 2 \
-    --roi -26.0,-35.0,60.0,38.0 --region SOM \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024073 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
   python modis_window.py -b 2024-03-05 -e 2024-03-05 --clip-valid --round-int 2 \
-    --roi -26.0,-35.0,60.0,38.0 --region SOM \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024073 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
 fi
@@ -170,6 +173,7 @@ fi
 if [ $resuming_from -le 2024073 ]
 then
   python modis_download.py --download --multithread \
+    --mirror /private/arc-modape-somalia/mirror \
     --username=$CMR_USERNAME --password=$CMR_PASSWORD \
     --robust --target-empty --match-begin --tile-filter $TILES \
     --collection 061 -b 2024-03-21 -e 2024-03-21 M?D13A2
@@ -177,15 +181,15 @@ then
   python modis_smooth.py --nsmooth 64 --nupdate 6 --tempint 10 \
     --last-collected 2024081 -d ./VIM/SMOOTH ./VIM
   python modis_window.py -b 2024-03-25 -e 2024-03-25 --clip-valid --round-int 2 \
-    --roi -26.0,-35.0,60.0,38.0 --region SOM \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024081 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
   python modis_window.py -b 2024-03-15 -e 2024-03-15 --clip-valid --round-int 2 \
-    --roi -26.0,-35.0,60.0,38.0 --region SOM \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024081 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
   python modis_window.py -b 2024-03-05 -e 2024-03-05 --clip-valid --round-int 2 \
-    --roi -26.0,-35.0,60.0,38.0 --region SOM \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024081 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
 fi
@@ -194,6 +198,7 @@ fi
 if [ $resuming_from -le 2024081 ]
 then
   python modis_download.py --download --multithread \
+    --mirror /private/arc-modape-somalia/mirror \
     --username=$CMR_USERNAME --password=$CMR_PASSWORD \
     --robust --target-empty --match-begin --tile-filter $TILES \
     --collection 061 -b 2024-03-29 -e 2024-03-29 M?D13A2
@@ -201,15 +206,15 @@ then
   python modis_smooth.py --nsmooth 64 --nupdate 6 --tempint 10 \
     --last-collected 2024089 -d ./VIM/SMOOTH ./VIM
   python modis_window.py -b 2024-04-05 -e 2024-04-05 --clip-valid --round-int 2 \
-    --roi -26.0,-35.0,60.0,38.0 --region SOM \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024089 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
   python modis_window.py -b 2024-03-25 -e 2024-03-25 --clip-valid --round-int 2 \
-    --roi -26.0,-35.0,60.0,38.0 --region SOM \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024089 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
   python modis_window.py -b 2024-03-15 -e 2024-03-15 --clip-valid --round-int 2 \
-    --roi -26.0,-35.0,60.0,38.0 --region SOM \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024089 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
 fi
@@ -218,6 +223,7 @@ fi
 if [ $resuming_from -le 2024089 ]
 then
   python modis_download.py --download --multithread \
+    --mirror /private/arc-modape-somalia/mirror \
     --username=$CMR_USERNAME --password=$CMR_PASSWORD \
     --robust --target-empty --match-begin --tile-filter $TILES \
     --collection 061 -b 2024-04-06 -e 2024-04-06 M?D13A2
@@ -225,11 +231,11 @@ then
   python modis_smooth.py --nsmooth 64 --nupdate 6 --tempint 10 \
     --last-collected 2024097 -d ./VIM/SMOOTH ./VIM
   python modis_window.py -b 2024-04-05 -e 2024-04-05 --clip-valid --round-int 2 \
-    --roi -26.0,-35.0,60.0,38.0 --region SOM \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024097 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
   python modis_window.py -b 2024-03-25 -e 2024-03-25 --clip-valid --round-int 2 \
-    --roi -26.0,-35.0,60.0,38.0 --region SOM \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024097 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
 fi
@@ -238,6 +244,7 @@ fi
 if [ $resuming_from -le 2024097 ]
 then
   python modis_download.py --download --multithread \
+    --mirror /private/arc-modape-somalia/mirror \
     --username=$CMR_USERNAME --password=$CMR_PASSWORD \
     --robust --target-empty --match-begin --tile-filter $TILES \
     --collection 061 -b 2024-04-14 -e 2024-04-14 M?D13A2
@@ -245,11 +252,11 @@ then
   python modis_smooth.py --nsmooth 64 --nupdate 6 --tempint 10 \
     --last-collected 2024105 -d ./VIM/SMOOTH ./VIM
   python modis_window.py -b 2024-04-15 -e 2024-04-15 --clip-valid --round-int 2 \
-    --roi -26.0,-35.0,60.0,38.0 --region SOM \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024105 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
   python modis_window.py -b 2024-04-05 -e 2024-04-05 --clip-valid --round-int 2 \
-    --roi -26.0,-35.0,60.0,38.0 --region SOM \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024105 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
 fi
