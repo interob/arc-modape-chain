@@ -18,6 +18,7 @@ import logging
 import os
 import re
 import shutil
+from typing import Dict, List
 
 import click
 
@@ -87,6 +88,52 @@ def generate_file_md5(filepath, blocksize=2**16):
                 break
             m.update(buf)
     return m.hexdigest()
+
+
+def export_tifs(
+    src: Path,
+    targetdir: Path,
+    export_dekad: Dekad,
+    roi: List[float],
+    region: str,
+    **metadataOptions: Dict[str, str],
+):
+    exports = modis_window.callback(
+        src=src,
+        targetdir=targetdir,
+        begin_date=export_dekad.getDateTimeMid(),
+        end_date=export_dekad.getDateTimeMid(),
+        roi=[roi[0], roi[1], roi[2], roi[3]],
+        region=region,
+        sgrid=False,
+        force_doy=False,
+        filter_product=None,
+        filter_vampc=None,
+        target_srs="EPSG:4326",
+        co=[
+            "COMPRESS=LZW",
+            "PREDICTOR=2",
+            "TILED=YES",
+            "BLOCKXSIZE=256",
+            "BLOCKYSIZE=256",
+        ],
+        clip_valid=True,
+        round_int=2,
+        gdal_kwarg={
+            "xRes": 0.01,
+            "yRes": 0.01,
+            "metadataOptions": [f"{key}={value}" for key, value in metadataOptions.items()],
+        },
+        overwrite=True,
+        last_smoothed=None,
+    )
+
+    for exp in exports:
+        md5 = generate_file_md5(exp)
+        with contextlib.suppress(FileNotFoundError):
+            os.remove(exp + ".md5")
+        with open(exp + ".md5", "w") as f:
+            f.write(md5)
 
 
 def exists_smooth_h5s(tiles, basedir, collection):
@@ -376,45 +423,15 @@ def do_processing(args, only_one_inc=False):
             for region, roi in args.export.items():
                 if getattr(args, "region_only", region) != region:
                     continue
-                exports = modis_window.callback(
-                    src=os.path.join(args.basedir, "VIM", "SMOOTH"),
-                    targetdir=os.path.join(args.basedir, "VIM", "SMOOTH", "EXPORT"),
-                    begin_date=export_dekad.getDateTimeMid(),
-                    end_date=export_dekad.getDateTimeMid(),
-                    roi=[roi[0], roi[1], roi[2], roi[3]],
-                    region=region,
-                    sgrid=False,
-                    force_doy=False,
-                    filter_product=None,
-                    filter_vampc=None,
-                    target_srs="EPSG:4326",
-                    co=[
-                        "COMPRESS=LZW",
-                        "PREDICTOR=2",
-                        "TILED=YES",
-                        "BLOCKXSIZE=256",
-                        "BLOCKYSIZE=256",
-                    ],
-                    clip_valid=True,
-                    round_int=2,
-                    gdal_kwarg={
-                        "xRes": 0.01,
-                        "yRes": 0.01,
-                        "metadataOptions": [
-                            "CONSOLIDATION_STAGE={}".format(nexports - 1),
-                            "FINAL={}".format("FALSE" if nexports < args.nupdate else "TRUE"),
-                        ],
-                    },
-                    overwrite=True,
-                    last_smoothed=None,
+                export_tifs(
+                    os.path.join(args.basedir, "VIM", "SMOOTH"),
+                    os.path.join(args.basedir, "VIM", "SMOOTH", "EXPORT"),
+                    export_dekad,
+                    roi,
+                    region,
+                    CONSOLIDATION_STAGE=f"{nexports - 1}",
+                    FINAL=f"{'FALSE' if nexports < args.nupdate else 'TRUE'}",
                 )
-
-                for exp in exports:
-                    md5 = generate_file_md5(exp)
-                    with contextlib.suppress(FileNotFoundError):
-                        os.remove(exp + ".md5")
-                    with open(exp + ".md5", "w") as f:
-                        f.write(md5)
 
             nexports = nexports + 1
             export_octad = export_octad.prev()
@@ -622,8 +639,25 @@ def check(ctx) -> None:
 @click.option("--download-and-collect-only", is_flag=True, default=False)
 @click.option("--smooth-only", is_flag=True, default=False)
 @click.option("--export-only", is_flag=True, default=False)
+@click.option(
+    "-b",
+    "--export-begin-date",
+    type=click.DateTime(formats=["%Y-%m-%d"]),
+    help="Begin date for export",
+)
+@click.option(
+    "-e", "--export-end-date", type=click.DateTime(formats=["%Y-%m-%d"]), help="End date for export"
+)
 @click.pass_context
-def init(ctx, download_only, download_and_collect_only, smooth_only, export_only) -> None:
+def init(
+    ctx,
+    download_only,
+    download_and_collect_only,
+    smooth_only,
+    export_only,
+    export_begin_date,
+    export_end_date,
+) -> None:
     with open(ctx.obj["CONFIG"]) as f:
         args = json.load(f)
     args = Namespace(**args)
@@ -638,6 +672,8 @@ def init(ctx, download_only, download_and_collect_only, smooth_only, export_only
     args.download_and_collect_only = download_and_collect_only
     args.smooth_only = smooth_only
     args.export_only = export_only
+    args.export_begin_date = export_begin_date
+    args.export_end_date = export_end_date
     do_init(args)
 
 
@@ -792,8 +828,16 @@ def do_init(args: Namespace):
         datetime.min.time(),
     )
 
-    export_slice = Dekad(first_date)
-    if export_slice.startsBeforeDate(first_date):
+    if getattr(args, "export_end_date", None) is not None:
+        assert getattr(args, "export_end_date") <= last_date
+        last_date = getattr(args, "export_end_date")
+
+    export_slice = (
+        Dekad(first_date)
+        if getattr(args, "export_begin_date", None) is None
+        else Dekad(getattr(args, "export_begin_date"))
+    )
+    while export_slice.startsBeforeDate(first_date):
         export_slice = export_slice.next()
 
     to_slice = export_slice
@@ -807,41 +851,14 @@ def do_init(args: Namespace):
                 log.info(
                     "{} -- Exporting {} to {} ...".format(region, str(export_slice), str(to_slice))
                 )
-                exports = modis_window.callback(
-                    src=os.path.join(args.basedir, "VIM", "SMOOTH"),
-                    targetdir=os.path.join(args.basedir, "VIM", "SMOOTH", "EXPORT"),
-                    begin_date=export_slice.getDateTimeMid(),
-                    end_date=to_slice.getDateTimeMid(),
-                    roi=[roi[0], roi[1], roi[2], roi[3]],
-                    region=region,
-                    sgrid=False,
-                    force_doy=False,
-                    filter_product=None,
-                    filter_vampc=None,
-                    target_srs="EPSG:4326",
-                    co=[
-                        "COMPRESS=LZW",
-                        "PREDICTOR=2",
-                        "TILED=YES",
-                        "BLOCKXSIZE=256",
-                        "BLOCKYSIZE=256",
-                    ],
-                    clip_valid=True,
-                    round_int=2,
-                    gdal_kwarg={
-                        "xRes": 0.01,
-                        "yRes": 0.01,
-                        "metadataOptions": ["FINAL=TRUE"],
-                    },
-                    overwrite=True,
-                    last_smoothed=None,
+                export_tifs(
+                    os.path.join(args.basedir, "VIM", "SMOOTH"),
+                    os.path.join(args.basedir, "VIM", "SMOOTH", "EXPORT"),
+                    export_slice,
+                    roi,
+                    region,
+                    FINAL="TRUE",
                 )
-                for exp in exports:
-                    md5 = generate_file_md5(exp)
-                    with contextlib.suppress(FileNotFoundError):
-                        os.remove(exp + ".md5")
-                    with open(exp + ".md5", "w") as f:
-                        f.write(md5)
 
         if to_slice.next().getDateTimeMid() > last_date:
             # every date represents (a) the *mid* of the one composite and the *start* of the other

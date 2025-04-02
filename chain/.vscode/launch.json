@@ -44,7 +44,34 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "init: export",
+            "name": "init: export smoothing grid",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/modape/modape/scripts/modis_window.py",
+            "args": [
+                "--sgrid",
+                "--target-srs", "none",
+                "--region", "redo",
+                "-d", "/var/storage/arc_modape_ndvi",
+                "/var/storage/arc_modape_ndvi/VIM/SMOOTH"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "init: import smoothing grid",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/modape/modape/scripts/modis_smooth.py",
+            "args": [
+                "-d", "/var/storage/arc_modape_ndvi/VIM/SMOOTH",
+                "-t", "10",
+                "--sgrid", "/var/storage/arc_modape_ndvi/fullvim_sgrid.tif",
+                "/var/storage/arc_modape_ndvi/VIM"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "init: export 202402d3",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/chain/arc_modape_chain.py",
@@ -52,23 +79,67 @@
                 "--config",
                 "${workspaceFolder}/src/chain/Somalia.json",
                 "init",
-                "--export-only"
+                "--export-only",
+                "-b",
+                "2024-02-25",
+                "-e",
+                "2024-02-25"
             ],
             "console": "integratedTerminal"
         },
         {
-            "name": "download next",
+            "name": "Forward processing: download next",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/src/arc_modape_chain.py",
-            "args": ["--config", "dev.json", "download"],
+            "program": "${workspaceFolder}/src/chain/arc_modape_chain.py",
+            "args": [
+                "--config",
+                "${workspaceFolder}/src/chain/Somalia.json",
+                "download"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Forward processing: collect downloaded",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/chain/arc_modape_chain.py",
+            "args": [
+                "--config",
+                "${workspaceFolder}/src/chain/Somalia.json",
+                "collect"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Forward processing: smooth",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/chain/arc_modape_chain.py",
+            "args": [
+                "--config",
+                "${workspaceFolder}/src/chain/Somalia.json",
+                "smooth"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Forward processing: export (n=6)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/chain/arc_modape_chain.py",
+            "args": [
+                "--config",
+                "${workspaceFolder}/src/chain/Somalia.json",
+                "export"
+            ],
             "console": "integratedTerminal"
         },
         {
             "name": "check production archive",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/src/arc_modape_chain.py",
+            "program": "${workspaceFolder}/src/chain/arc_modape_chain.py",
             "args": ["--config", "production.example.json", "check"],
             "console": "integratedTerminal"
         },
