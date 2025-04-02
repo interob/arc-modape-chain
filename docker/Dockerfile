@@ -1,4 +1,4 @@
-FROM ubuntu:20.04 AS build
+FROM ubuntu:22.04 AS build
 ENV TZ=UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
@@ -6,7 +6,7 @@ RUN apt-get update \
   && apt-get install -y \
     build-essential pkg-config git \
     libssl-dev libcurl4-openssl-dev nginx \
-    swig sqlite3 bison flex unzip \
+    swig sqlite3 bison flex unzip libntirpc-dev \
     libsqlite3-dev libtiff-dev libnetcdf-dev libzstd-dev \
     python3-dev python3-pip \
   && cd /usr/local/bin \
@@ -21,7 +21,7 @@ ENV CPUS 2
 COPY assets/* /usr/src/
 
 RUN cd /usr/src && tar -xzf hdf-4.2.15.tar.gz && cd hdf-4.2.15 \
-  && export CFLAGS="-fPIC" && export CXXFLAGS="-fPIC" && ./configure --disable-netcdf --disable-fortran \
+  && export CFLAGS="-fPIC -I/usr/include/tirpc" && export CXXFLAGS="-fPIC" && export LIBS="-ltirpc" && ./configure --disable-netcdf --disable-fortran \
   && make && make install && cp -R hdf4 /opt \
   && ldconfig
 
@@ -61,7 +61,8 @@ RUN PIP_ROOT_USER_ACTION=ignore pip \
       "pycksum>=0.4.3"
 
 RUN cd /usr/src && tar -xzf gdal-3.2.0.tar.gz && cd gdal-3.2.0 \
-  && ./configure --with-hdf4=/opt/hdf4 --with-python --with-netcdf --with-liblzma --with-libzstd \
+  && /bin/echo -e "40a41\n> #include <limits>" | patch ogr/ogrsf_frmts/cad/libopencad/dwg/r2000.cpp \
+  && export LIBS="-ltirpc" && ./configure --with-hdf4=/opt/hdf4 --with-python --with-netcdf --with-liblzma --with-libzstd \
   && CPPFLAGS=-I/opt/hdf4/include make && make install \
   && ldconfig
 
@@ -77,4 +78,5 @@ ARG USERNAME=worker
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd --no-log-init --uid $USER_UID --gid $USER_GID -m $USERNAME
+  && useradd --no-log-init --uid $USER_UID --gid $USER_GID -m $USERNAME
+
