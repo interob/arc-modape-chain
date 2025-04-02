@@ -106,7 +106,7 @@ then
     --last-smoothed 2024049 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
 fi
 
-# Processing of 2024057 (CS1: 2024-006)
+# Processing of 2024057
 if [ $resuming_from -le 2024049 ]
 then
   python modis_download.py --download --multithread \
@@ -117,17 +117,29 @@ then
   python modis_collect.py --interleave --cleanup --last-collected 2024049 .
   python modis_smooth.py --nsmooth 64 --nupdate 6 --tempint 10 \
     --last-collected 2024057 -d ./VIM/SMOOTH ./VIM
+  # CS1: 2024-006
   python modis_window.py -b 2024-02-25 -e 2024-02-25 --clip-valid --round-int 2 \
     --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024057 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
+  # CS2: 2024-005
   python modis_window.py -b 2024-02-15 -e 2024-02-15 --clip-valid --round-int 2 \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
+    --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
+    --overwrite --last-smoothed 2024057 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
+  # CS3: 2024-004
+  python modis_window.py -b 2024-02-05 -e 2024-02-05 --clip-valid --round-int 2 \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
+    --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
+    --overwrite --last-smoothed 2024057 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
+  # CS4: 2024-003
+  python modis_window.py -b 2024-01-25 -e 2024-01-25 --clip-valid --round-int 2 \
     --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024057 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
 fi
 
-# Processing of 2024065 (CS0: 2024-007)
+# Processing of 2024065
 if [ $resuming_from -le 2024057 ]
 then
   python modis_download.py --download --multithread \
@@ -138,17 +150,34 @@ then
   python modis_collect.py --interleave --cleanup --last-collected 2024057 .
   python modis_smooth.py --nsmooth 64 --nupdate 6 --tempint 10 \
     --last-collected 2024065 -d ./VIM/SMOOTH ./VIM
+  # CS0: 2024-007
   python modis_window.py -b 2024-03-05 -e 2024-03-05 --clip-valid --round-int 2 \
     --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024065 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
+  # CS2: 2024-006
   python modis_window.py -b 2024-02-25 -e 2024-02-25 --clip-valid --round-int 2 \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
+    --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
+    --overwrite --last-smoothed 2024065 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
+  # CS3: 2024-005
+  python modis_window.py -b 2024-02-15 -e 2024-02-15 --clip-valid --round-int 2 \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
+    --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
+    --overwrite --last-smoothed 2024065 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
+  # CS4: 2024-004
+  python modis_window.py -b 2024-02-05 -e 2024-02-05 --clip-valid --round-int 2 \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
+    --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
+    --overwrite --last-smoothed 2024065 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
+  # CS5: 2024-003
+  python modis_window.py -b 2024-01-25 -e 2024-01-25 --clip-valid --round-int 2 \
     --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024065 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
 fi
 
-# Processing of 2024073 (CS0: 2024-008)
+# Processing of 2024073
 if [ $resuming_from -le 2024065 ]
 then
   python modis_download.py --download --multithread \
@@ -159,17 +188,34 @@ then
   python modis_collect.py --interleave --cleanup --last-collected 2024065 .
   python modis_smooth.py --nsmooth 64 --nupdate 6 --tempint 10 \
     --last-collected 2024073 -d ./VIM/SMOOTH ./VIM
+  # CS0: 2024-008
   python modis_window.py -b 2024-03-15 -e 2024-03-15 --clip-valid --round-int 2 \
     --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024073 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
+  # CS1: 2024-007
   python modis_window.py -b 2024-03-05 -e 2024-03-05 --clip-valid --round-int 2 \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
+    --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
+    --overwrite --last-smoothed 2024073 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
+  # CS3: 2024-006
+  python modis_window.py -b 2024-02-25 -e 2024-02-25 --clip-valid --round-int 2 \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
+    --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
+    --overwrite --last-smoothed 2024073 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
+  # CS4: 2024-005
+  python modis_window.py -b 2024-02-15 -e 2024-02-15 --clip-valid --round-int 2 \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
+    --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
+    --overwrite --last-smoothed 2024073 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
+  # CS5: 2024-004
+  python modis_window.py -b 2024-02-05 -e 2024-02-05 --clip-valid --round-int 2 \
     --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024073 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
 fi
 
-# Processing of 2024081 (CS0: 2024-009)
+# Processing of 2024081
 if [ $resuming_from -le 2024073 ]
 then
   python modis_download.py --download --multithread \
@@ -180,21 +226,34 @@ then
   python modis_collect.py --interleave --cleanup --last-collected 2024073 .
   python modis_smooth.py --nsmooth 64 --nupdate 6 --tempint 10 \
     --last-collected 2024081 -d ./VIM/SMOOTH ./VIM
+  # CS0: 2024-009
   python modis_window.py -b 2024-03-25 -e 2024-03-25 --clip-valid --round-int 2 \
     --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024081 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
+  # CS1: 2024-008
   python modis_window.py -b 2024-03-15 -e 2024-03-15 --clip-valid --round-int 2 \
     --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024081 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
+  # CS2: 2024-007
   python modis_window.py -b 2024-03-05 -e 2024-03-05 --clip-valid --round-int 2 \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
+    --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
+    --overwrite --last-smoothed 2024081 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
+  # CS4: 2024-006
+  python modis_window.py -b 2024-02-25 -e 2024-02-25 --clip-valid --round-int 2 \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
+    --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
+    --overwrite --last-smoothed 2024081 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
+  # CS5: 2024-005
+  python modis_window.py -b 2024-02-15 -e 2024-02-15 --clip-valid --round-int 2 \
     --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024081 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
 fi
 
-# Processing of 2024089 (CS0: 2024-010)
+# Processing of 2024089
 if [ $resuming_from -le 2024081 ]
 then
   python modis_download.py --download --multithread \
@@ -205,21 +264,34 @@ then
   python modis_collect.py --interleave --cleanup --last-collected 2024081 .
   python modis_smooth.py --nsmooth 64 --nupdate 6 --tempint 10 \
     --last-collected 2024089 -d ./VIM/SMOOTH ./VIM
+  # CS0: 2024-010
   python modis_window.py -b 2024-04-05 -e 2024-04-05 --clip-valid --round-int 2 \
     --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024089 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
+  # CS1: 2024-009
   python modis_window.py -b 2024-03-25 -e 2024-03-25 --clip-valid --round-int 2 \
     --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024089 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
+  # CS2: 2024-008
   python modis_window.py -b 2024-03-15 -e 2024-03-15 --clip-valid --round-int 2 \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
+    --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
+    --overwrite --last-smoothed 2024089 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
+  # CS3: 2024-007
+  python modis_window.py -b 2024-03-05 -e 2024-03-05 --clip-valid --round-int 2 \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
+    --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
+    --overwrite --last-smoothed 2024089 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
+  # CS5: 2024-006
+  python modis_window.py -b 2024-02-25 -e 2024-02-25 --clip-valid --round-int 2 \
     --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024089 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
 fi
 
-# Processing of 2024097 (CS1: 2024-010)
+# Processing of 2024097
 if [ $resuming_from -le 2024089 ]
 then
   python modis_download.py --download --multithread \
@@ -230,17 +302,29 @@ then
   python modis_collect.py --interleave --cleanup --last-collected 2024089 .
   python modis_smooth.py --nsmooth 64 --nupdate 6 --tempint 10 \
     --last-collected 2024097 -d ./VIM/SMOOTH ./VIM
+  # CS1: 2024-010
   python modis_window.py -b 2024-04-05 -e 2024-04-05 --clip-valid --round-int 2 \
     --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024097 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
+  # CS2: 2024-009
   python modis_window.py -b 2024-03-25 -e 2024-03-25 --clip-valid --round-int 2 \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
+    --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
+    --overwrite --last-smoothed 2024097 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
+  # CS3: 2024-008
+  python modis_window.py -b 2024-03-15 -e 2024-03-15 --clip-valid --round-int 2 \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
+    --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
+    --overwrite --last-smoothed 2024097 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
+  # CS4: 2024-007
+  python modis_window.py -b 2024-03-05 -e 2024-03-05 --clip-valid --round-int 2 \
     --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024097 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
 fi
 
-# Processing of 2024105 (CS0: 2024-011)
+# Processing of 2024105
 if [ $resuming_from -le 2024097 ]
 then
   python modis_download.py --download --multithread \
@@ -251,11 +335,23 @@ then
   python modis_collect.py --interleave --cleanup --last-collected 2024097 .
   python modis_smooth.py --nsmooth 64 --nupdate 6 --tempint 10 \
     --last-collected 2024105 -d ./VIM/SMOOTH ./VIM
-  python modis_window.py -b 2024-04-15 -e 2024-04-15 --clip-valid --round-int 2 \
+  # CS2: 2024-010
+  python modis_window.py -b 2024-04-05 -e 2024-04-05 --clip-valid --round-int 2 \
     --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024105 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
-  python modis_window.py -b 2024-04-05 -e 2024-04-05 --clip-valid --round-int 2 \
+  # CS3: 2024-009
+  python modis_window.py -b 2024-03-25 -e 2024-03-25 --clip-valid --round-int 2 \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
+    --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
+    --overwrite --last-smoothed 2024105 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
+  # CS4: 2024-008
+  python modis_window.py -b 2024-03-15 -e 2024-03-15 --clip-valid --round-int 2 \
+    --roi 40.0,-2.0,52.0,12.0 --region SOM \
+    --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
+    --overwrite --last-smoothed 2024105 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
+  # CS5: 2024-007
+  python modis_window.py -b 2024-03-05 -e 2024-03-05 --clip-valid --round-int 2 \
     --roi 40.0,-2.0,52.0,12.0 --region SOM \
     --gdal-kwarg xRes=0.01 --gdal-kwarg yRes=0.01 \
     --overwrite --last-smoothed 2024105 -d ./VIM/SMOOTH/EXPORT ./VIM/SMOOTH
