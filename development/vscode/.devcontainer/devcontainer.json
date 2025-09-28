@@ -3,10 +3,10 @@
 {
     "name": "ARC MODAPE CHAIN development",
     "dockerComposeFile": "docker-compose.development.yml",
-    "service": "modape",
-    "initializeCommand": "sed -e \"s/{{service}}/modape/ig\" -e \"s/{{user}}/$(id -un)/ig\" -e \"s#{{dockerfile}}#$(pwd)/.devcontainer/Dockerfile#ig\" -e \"s#{{context}}#./src/docker#ig\" ./src/development/vscode/.devcontainer/docker-compose.development.yml > ./.devcontainer/docker-compose.development.yml && cat ./src/docker/Dockerfile > ./.devcontainer/Dockerfile && sed -e \"s/{{user}}/$(id -un)/ig\" ./src/development/vscode/.devcontainer/DockerDevStage.template >> ./.devcontainer/Dockerfile",
+    "service": "arc_modape_chain",
+    "initializeCommand": "sed -e \"s/{{service}}/arc_modape_chain/ig\" -e \"s/{{user}}/$(id -un)/ig\" -e \"s#{{dockerfile}}#$(pwd)/.devcontainer/Dockerfile#ig\" -e \"s#{{context}}#$(pwd)/src/docker#ig\" ./src/development/vscode/.devcontainer/docker-compose.development.yml > ./.devcontainer/docker-compose.development.yml && cat ./src/docker/Dockerfile > ./.devcontainer/Dockerfile && sed -e \"s/{{user}}/$(id -un)/ig\" ./src/development/vscode/.devcontainer/DockerDevStage.template >> ./.devcontainer/Dockerfile",
     "updateRemoteUserUID": true,
-    "workspaceFolder": "/arc-modape-chain/src",
+    "workspaceFolder": "/arc_modape_chain/src",
     "postCreateCommand": "sudo pip install pytest pytest-cov \"numpy<2\" \"pandas<2\" && sudo pip install -e .[dev] --break-system-packages",
     "customizations": {
         "vscode": {
