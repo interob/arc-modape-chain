@@ -2,8 +2,7 @@ FROM build AS development
 RUN apt-get update -y && \
     apt-get install -y \
       gawk sudo \
-      iputils-ping \
-      postgresql-client
+      iputils-ping
 
 RUN useradd --home-dir /home/{{user}} -mUl {{user}}
 RUN adduser {{user}} sudo

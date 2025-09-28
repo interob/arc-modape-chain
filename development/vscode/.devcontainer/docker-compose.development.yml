@@ -4,12 +4,12 @@ version: '3.8'
 
 services:
 
-  arc_modape_chain:
+  {{service}}:
     build:
       dockerfile: "{{dockerfile}}"
-      context: ../src/docker
+      context: "{{context}}"
       target: development
-    container_name: arc_modape_chain_devcontainer
+    container_name: {{service}}_devcontainer
     ports:
       - "8080:5001"
       - "8001:8001"
@@ -19,7 +19,5 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
     volumes:
-      - ../:/arc-modape-chain
-      - ../modape/:/var/modape
-      - ../../../arc-modape-somalia/scripted/:/var/storage
-      - ../../../:/private
+      - ../:/{{service}}
+      - ../storage:/storage
