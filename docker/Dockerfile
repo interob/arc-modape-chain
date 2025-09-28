@@ -20,8 +20,9 @@ ENV CPUS 2
 
 COPY assets/* /usr/src/
 
-RUN cd /usr/src && tar -xzf hdf-4.2.15.tar.gz && cd hdf-4.2.15 \
-  && export CFLAGS="-fPIC -I/usr/include/tirpc" && export CXXFLAGS="-fPIC" && export LIBS="-ltirpc" && ./configure --disable-netcdf --disable-fortran \
+RUN cd /usr/src && tar -xzf hdf-4.3.1.tar.gz && cd hdf-4.3.1 \
+  && export CFLAGS="-fPIC -I/usr/include/tirpc" CXXFLAGS="-fPIC" LIBS="-ltirpc" \
+  && ./configure --disable-netcdf --disable-fortran \
   && make && make install && cp -R hdf4 /opt \
   && ldconfig
 
