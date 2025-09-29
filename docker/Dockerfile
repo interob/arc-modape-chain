@@ -7,7 +7,8 @@ RUN apt-get update \
     build-essential pkg-config git \
     libssl-dev libcurl4-openssl-dev nginx \
     swig sqlite3 bison flex unzip libntirpc-dev \
-    libsqlite3-dev libtiff-dev libnetcdf-dev libzstd-dev \
+    libsqlite3-dev libtiff-dev libpng-dev \
+    libnetcdf-dev libzstd-dev \
     python3-dev python3-pip \
   && cd /usr/local/bin \
   && ln -s $(readlink -f $(which python3)) python \
@@ -64,7 +65,7 @@ RUN PIP_ROOT_USER_ACTION=ignore pip \
 RUN cd /usr/src && tar -xzf gdal-3.2.0.tar.gz && cd gdal-3.2.0 \
   && /bin/echo -e "40a41\n> #include <limits>" | patch ogr/ogrsf_frmts/cad/libopencad/dwg/r2000.cpp \
   && export LIBS="-ltirpc" \
-  && ./configure --with-hdf4=/opt/hdf4 --with-python --with-netcdf --with-liblzma --with-libzstd --with-png=no \
+  && ./configure --with-hdf4=/opt/hdf4 --with-python --with-netcdf --with-liblzma --with-libzstd \
   && CPPFLAGS=-I/opt/hdf4/include make && make install \
   && ldconfig
 
