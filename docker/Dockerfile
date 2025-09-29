@@ -63,7 +63,8 @@ RUN PIP_ROOT_USER_ACTION=ignore pip \
 
 RUN cd /usr/src && tar -xzf gdal-3.2.0.tar.gz && cd gdal-3.2.0 \
   && /bin/echo -e "40a41\n> #include <limits>" | patch ogr/ogrsf_frmts/cad/libopencad/dwg/r2000.cpp \
-  && export LIBS="-ltirpc" && ./configure --with-hdf4=/opt/hdf4 --with-python --with-netcdf --with-liblzma --with-libzstd \
+  && export LIBS="-ltirpc" \
+  && ./configure --with-hdf4=/opt/hdf4 --with-python --with-netcdf --with-liblzma --with-libzstd --with-png=no \
   && CPPFLAGS=-I/opt/hdf4/include make && make install \
   && ldconfig
 
