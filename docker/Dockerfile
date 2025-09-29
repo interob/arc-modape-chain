@@ -16,8 +16,8 @@ RUN apt-get update \
   && ln -s $(readlink -f $(which python3)) python \
   && rm -rf /var/lib/apt/lists/*
 
-ENV PYTHONUNBUFFERED 1
-ENV CPUS 2
+ENV PYTHONUNBUFFERED=1
+ENV CPUS=2
 
 COPY assets/* /usr/src/
 
