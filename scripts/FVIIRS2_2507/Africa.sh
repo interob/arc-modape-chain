@@ -72,13 +72,13 @@ then
     --tile-filter $TILES -b 2017-02-02 -e 2018-01-25 VNP13A2
   modis_collect --cleanup --last-collected 2017025 .
 fi
-if [ $resuming_from -le 2018001 ]
+if [ $resuming_from -le 2018025 ]
 then
   modis_download --download --multithread \
     --username=$CMR_USERNAME --password=$CMR_PASSWORD \
     --target-empty --match-begin --collection 002 \
-    --tile-filter $TILES -b 2018-01-01 -e 2019-01-25 VNP13A2
-  modis_collect --cleanup --last-collected 2018001 .
+    --tile-filter $TILES -b 2018-02-02 -e 2019-01-25 VNP13A2
+  modis_collect --cleanup --last-collected 2018025 .
 fi
 if [ $resuming_from -le 2019025 ]
 then
