@@ -107,5 +107,4 @@ wsmtk.key.pkl
 docenv/*
 
 .idea/
-
-modape/
+.vscode/

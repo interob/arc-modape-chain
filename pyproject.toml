@@ -1,6 +1,82 @@
-[build-system]
-requires = [
-  "setuptools == 57.5.0",
+[project]
+name = "arc-modape-chain"
+version = "1.2.0"
+description = "ARC MODAPE-based processing chain"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Private :: Do Not Upload",
 ]
+dependencies = [
+  "numpy<2.0.0",
+#    "gdal",
+  "requests==2.32.5",
+  "Werkzeug>=2.2,<3.0",
+  "flask==2.0.3",
+  "modape==1.2.0",
+  "boto3"
+]
+
+[project.optional-dependencies]
+dev = [
+    "coverage",
+    "pytest",
+    "pytest-mock",
+    "pytest-socket",
+    "pytest-cov",
+    "pytest-django==4.8.0",
+    "pre-commit",
+    "ruff==0.9.6"
+]
+
+[build-system]
+requires = ["setuptools >= 57.5.0"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools.package-data]
+"*" = [
+    "*.config"
+]
+
+[tool.setuptools.packages.find]
+include = ["arc_modape_chain"]
+
+[tool.ruff]
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".eggs",
+    ".git",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "migrations",
+    "venv",
+    "*_settings.py"
+]
+
+line-length = 100
+indent-width = 4
+
+target-version = "py310"
+
+[tool.ruff.lint]
+# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
+# Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
+# McCabe complexity (`C901`) by default.
+select = ["E4", "E7", "E9", "F", "W", "I"]  # "C901"
+ignore = []
+
+fixable = ["ALL"]
+unfixable = []
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
