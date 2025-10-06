@@ -6,4 +6,4 @@ rsync -r --exclude='*/__pycache__*' \
 cp ./wsgi.py "${sop}"
 cp ./pyproject.toml "${sop}"
 cp ./setup.py "${sop}"
-cp ./config/production.example.json "${sop}/production.json"
+sed -e "s/A_K_I_A/AKIA/g" ./config/production.example.json > "${sop}/production.json"
