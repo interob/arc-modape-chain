@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 """
-  arc_modis_ndvi.py: Flask Service app for collecting, processing and disseminating filtered NDVI.
-           Production the time series leverages the WFP VAM MODAPE toolkit: https://github.com/WFP-VAM/modape
+arc_modape_chain.py: Flask Service app for collecting, processing and disseminating filtered NDVI.
+         Production the time series leverages the WFP VAM MODAPE toolkit: https://github.com/WFP-VAM/modape
 
-  Dependencies: arc-modape (1.0), Numpy, ...
-
-  Author: Rob Marjot, (c) ARC 2020
+Author: Rob Marjot, (c) ARC 2025
 
 """
 
@@ -18,9 +16,31 @@ import logging
 import os
 import re
 import shutil
+import time
+from datetime import date, datetime
+from pathlib import Path
+from threading import Thread, Timer
 from typing import Dict, List
+from urllib.parse import urlencode
 
+import boto3
 import click
+from dateutil.relativedelta import relativedelta
+from flask import Flask, jsonify, send_file
+from modape.modis import ModisQuery
+from modape.scripts.modis_collect import cli as modis_collect
+from modape.scripts.modis_download import cli as modis_download
+from modape.scripts.modis_smooth import cli as modis_smooth
+from modape.scripts.modis_window import cli as modis_window
+from requests import post
+
+from arc_modape_chain.modape_helper import (
+    curate_downloads,
+    get_first_date_in_raw_modis_tiles,
+    get_last_date_in_raw_modis_tiles,
+    has_collected_dates,
+)
+from arc_modape_chain.modape_helper.timeslicing import Dekad, ModisInterleavedOctad
 
 logging.basicConfig(
     level=os.environ.get("LOGLEVEL", "INFO"),
@@ -37,7 +57,7 @@ _log.addHandler(h)
 
 
 def echo_through_log(message=None, file=None, nl=True, err=False, color=None):
-    _log.info(re.sub("\s+", " ", message).strip())
+    _log.info(re.sub(r"\s+", " ", message).strip())
 
 
 click.echo = echo_through_log
@@ -49,27 +69,6 @@ h.setLevel(os.environ.get("LOGLEVEL", "INFO"))
 h.setFormatter(logging.Formatter("[%(asctime)s %(levelname)s] - %(message)s", "%Y-%m-%d %H:%M:%S"))
 log.addHandler(h)
 
-from datetime import date, datetime
-from pathlib import Path
-from threading import Thread, Timer
-from urllib.parse import urlencode
-
-from dateutil.relativedelta import relativedelta
-from flask import Flask, jsonify, send_file
-from requests import post
-
-from chain.modape_helper import (
-    curate_downloads,
-    get_first_date_in_raw_modis_tiles,
-    get_last_date_in_raw_modis_tiles,
-    has_collected_dates,
-)
-from chain.modape_helper.timeslicing import Dekad, ModisInterleavedOctad
-from modape.modis import ModisQuery
-from modape.scripts.modis_collect import cli as modis_collect
-from modape.scripts.modis_download import cli as modis_download
-from modape.scripts.modis_smooth import cli as modis_smooth
-from modape.scripts.modis_window import cli as modis_window
 
 try:
     from types import SimpleNamespace as Namespace
@@ -79,7 +78,120 @@ except ImportError:
 app_state = None
 
 
-def generate_file_md5(filepath, blocksize=2**16):
+def calculate_sha256(file_path: str):
+    """Calculate SHA256 hash of a local file."""
+    hash_sha256 = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_sha256.update(chunk)
+    return hash_sha256.hexdigest()
+
+
+def upload_files_to_s3(
+    file_paths: list[str],
+    bucket_name: str,
+    aws_access_key_id: str,
+    aws_secret_access_key: str,
+    folder: str = "",
+    max_retries: int = 3,
+    retry_delay: int = 2,
+):
+    """
+    Upload files to S3 bucket, skipping files that already exist with matching hash.
+    Handles both single-part and multipart uploads by storing SHA256 in metadata.
+
+    Args:
+        file_paths: List of local file paths (strings)
+        bucket_name: Name of the S3 bucket
+        aws_access_key_id: AWS access key ID
+        aws_secret_access_key: AWS secret access key
+        folder: Folder path inside the bucket (e.g., 'my-folder' or 'path/to/folder'). Default is root.
+        max_retries: Maximum number of retry attempts for failed uploads. Default is 3.
+        retry_delay: Delay in seconds between retry attempts. Default is 2.
+
+    Returns:
+        bool: True if all files were successfully uploaded or already exist, False otherwise
+    """
+    s3_client = boto3.client(
+        "s3", aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key
+    )
+
+    # Ensure folder ends with '/' if provided and not empty
+    if folder and not folder.endswith("/"):
+        folder = folder + "/"
+
+    # Get list of all existing objects in the bucket/folder
+    try:
+        existing_objects = set()
+        paginator = s3_client.get_paginator("list_objects_v2")
+
+        if folder:
+            pages = paginator.paginate(Bucket=bucket_name, Prefix=folder)
+        else:
+            pages = paginator.paginate(Bucket=bucket_name)
+
+        for page in pages:
+            if "Contents" in page:
+                for obj in page["Contents"]:
+                    existing_objects.add(obj["Key"])
+    except Exception:
+        return False
+
+    for file_path in file_paths:
+        file_name = os.path.basename(file_path)
+        s3_key = folder + file_name
+
+        # Check if file exists locally
+        if not os.path.exists(file_path):
+            return False
+
+        # Calculate local file hash
+        try:
+            local_sha256 = calculate_sha256(file_path)
+        except Exception:
+            return False
+
+        # Check if file already exists in S3
+        if s3_key in existing_objects:
+            try:
+                # Get object metadata
+                response = s3_client.head_object(Bucket=bucket_name, Key=s3_key)
+
+                # Check if we stored the SHA256 in metadata
+                if "Metadata" in response and "sha256" in response["Metadata"]:
+                    s3_sha256 = response["Metadata"]["sha256"]
+
+                    # Compare hashes
+                    if local_sha256 == s3_sha256:
+                        log.info("Verified: {}...".format(file_name))
+                        continue  # File already exists with same content, skip
+            except Exception:
+                return False
+
+        # Upload the file with retry logic
+        upload_success = False
+        for attempt in range(max_retries):
+            try:
+                log.info("Uploading: {}...".format(file_name))
+                # Upload with SHA256 stored in metadata
+                s3_client.upload_file(
+                    file_path, bucket_name, s3_key, ExtraArgs={"Metadata": {"sha256": local_sha256}}
+                )
+                upload_success = True
+                break
+            except Exception:
+                if attempt < max_retries - 1:
+                    time.sleep(retry_delay)
+                else:
+                    return False
+
+        if not upload_success:
+            return False
+
+    return True
+
+
+def generate_file_md5(filepath: str, blocksize: int = 2**16):
     m = hashlib.md5()
     with open(filepath, "rb") as f:
         while True:
@@ -93,7 +205,8 @@ def generate_file_md5(filepath, blocksize=2**16):
 def export_tifs(
     src: Path,
     targetdir: Path,
-    export_dekad: Dekad,
+    begin_export_dekad: Dekad,
+    end_export_dekad: Dekad,
     roi: List[float],
     region: str,
     **metadataOptions: Dict[str, str],
@@ -101,8 +214,8 @@ def export_tifs(
     exports = modis_window.callback(
         src=src,
         targetdir=targetdir,
-        begin_date=export_dekad.getDateTimeMid(),
-        end_date=export_dekad.getDateTimeMid(),
+        begin_date=begin_export_dekad.getDateTimeMid(),
+        end_date=end_export_dekad.getDateTimeMid(),
         roi=[roi[0], roi[1], roi[2], roi[3]],
         region=region,
         sgrid=False,
@@ -136,7 +249,8 @@ def export_tifs(
             f.write(md5)
 
 
-def exists_smooth_h5s(tiles, basedir, collection):
+def exists_smooth_h5s(product: str, tiles: list[str], basedir: str, collection: str):
+    # MXD13A2
     # Check all tiles for a corresponding H5 archive in VIM/SMOOTH:
     return all(
         [
@@ -145,7 +259,7 @@ def exists_smooth_h5s(tiles, basedir, collection):
                     basedir,
                     "VIM",
                     "SMOOTH",
-                    "MXD13A2.{}.{}.txd.VIM.h5".format(tile, collection),
+                    "{}.{}.{}.txd.VIM.h5".format(product, tile, collection),
                 )
             ).exists()
             for tile in tiles
@@ -170,7 +284,7 @@ def app_index():
         return jsonify(files)
 
 
-def app_download(filename):
+def app_download(filename: str):
     global app_state
     if app_state.fetcherThread.is_alive() and not getattr(app_state, "suspended", False):
         return "Fetcher is running (or suspended), try again later\n", 503
@@ -197,6 +311,7 @@ def app_fetch():
     else:
         # Check all tiles for a corresponding H5 archive in VIM/SMOOTH:
         if not exists_smooth_h5s(
+            app_state.product,
             app_state.tile_filter,
             app_state.basedir,
             getattr(app_state, "collection", "006"),
@@ -230,13 +345,16 @@ def app_suspend():
         return s
 
 
-def app_log(filename):
+def app_log(filename: str):
     global app_state
-    return send_file(
-        os.path.join(app_state.basedir, "log", filename),
-        as_attachment=False,
-        mimetype="text/plain",
-    )
+    try:
+        return send_file(
+            os.path.join(app_state.basedir, "log", filename),
+            as_attachment=False,
+            mimetype="text/plain",
+        )
+    except FileNotFoundError:
+        return (f"No such log: {filename}\n", 404)
 
 
 def app_do_init():
@@ -249,7 +367,7 @@ def app_do_processing():
     do_processing(app_state)
 
 
-def do_processing(args, only_one_inc=False):
+def do_processing(args: Namespace, only_one_inc=False):
     # download and ingest:
     while True:
         last_date = get_last_date_in_raw_modis_tiles(os.path.join(args.basedir, "VIM"))
@@ -263,13 +381,12 @@ def do_processing(args, only_one_inc=False):
             and not getattr(args, "smooth_only", False)
             and not getattr(args, "export_only", False)
         ):
-
             if next_date > date.today():  # stop after today:
                 break
 
             log.info("Downloading: {}...".format(next_date))
             downloaded = modis_download.callback(
-                products=["M?D13A2"],
+                products=[args.product],
                 begin_date=datetime.combine(next_date, datetime.min.time()),
                 end_date=datetime.combine(next_date, datetime.min.time()),
                 targetdir=args.basedir,
@@ -329,9 +446,9 @@ def do_processing(args, only_one_inc=False):
         if getattr(args, "collect_only", False) or (
             not getattr(args, "smooth_only", False) and not getattr(args, "export_only", False)
         ):
-
             # check download completeness:
-            if not curate_downloads(args.basedir, args.tile_filter, next_date, next_date):
+            curated = curate_downloads(args.basedir, args.tile_filter, next_date, next_date)
+            if not len(curated):
                 latency = datetime.now() - datetime.combine(
                     next_date + relativedelta(days=16), datetime.min.time()
                 )
@@ -365,6 +482,22 @@ def do_processing(args, only_one_inc=False):
                     )
                 break
 
+            # Push curated set of files to S3:
+            if (
+                len(getattr(args, "bucket", "")) > 0
+                and len(getattr(args, "aws_access_key_id", "")) > 0
+                and len(getattr(args, "aws_secret_access_key", "")) > 0
+            ):
+                match = re.match(r"[Ss]3://([^/]+)/(.+)", getattr(args, "bucket", ""))
+                if match:
+                    upload_files_to_s3(
+                        curated,
+                        match.group(1),
+                        getattr(args, "aws_access_key_id", ""),
+                        getattr(args, "aws_secret_access_key", ""),
+                        match.group(2),
+                    )
+
             # We're OK; now collect;
             modis_collect.callback(
                 src_dir=args.basedir,
@@ -377,6 +510,7 @@ def do_processing(args, only_one_inc=False):
                 force=False,
                 last_collected=None,
                 tiles_required=",".join(args.tile_filter),
+                report_collected=False,
             )
 
             if getattr(args, "collect_only", False):
@@ -384,7 +518,6 @@ def do_processing(args, only_one_inc=False):
 
         # smooth by N/n
         if getattr(args, "smooth_only", False) or (not getattr(args, "export_only", False)):
-
             modis_smooth.callback(
                 src=os.path.join(args.basedir, "VIM"),
                 targetdir=os.path.join(args.basedir, "VIM", "SMOOTH"),
@@ -395,7 +528,8 @@ def do_processing(args, only_one_inc=False):
                 tempint_start=None,
                 nsmooth=args.nsmooth,
                 nupdate=args.nupdate,
-                soptimize=False,
+                soptimize=None,
+                sgrid=None,
                 parallel_tiles=1,
                 last_collected=None,
             )
@@ -403,7 +537,7 @@ def do_processing(args, only_one_inc=False):
             if getattr(args, "smooth_only", False):
                 break
 
-        # export dekads, from back to front (n = 6):
+        # export dekads, from back to front:
         nexports = 1
         export_octad = ModisInterleavedOctad(
             get_last_date_in_raw_modis_tiles(os.path.join(args.basedir, "VIM"))
@@ -419,13 +553,13 @@ def do_processing(args, only_one_inc=False):
 
         first_date = get_first_date_in_raw_modis_tiles(os.path.join(args.basedir, "VIM"))
         while (not export_dekad.startsBeforeDate(first_date)) and nexports <= args.nupdate:
-
             for region, roi in args.export.items():
                 if getattr(args, "region_only", region) != region:
                     continue
                 export_tifs(
                     os.path.join(args.basedir, "VIM", "SMOOTH"),
                     os.path.join(args.basedir, "VIM", "SMOOTH", "EXPORT"),
+                    export_dekad,
                     export_dekad,
                     roi,
                     region,
@@ -469,7 +603,7 @@ def app_setup(config: str) -> Flask:
 @click.option("--region")
 @click.option("--config")
 @click.pass_context
-def cli(ctx, config, region, debug):
+def cli(ctx: click.core.Context, config, region, debug):
     ctx.ensure_object(dict)
     ctx.obj["CONFIG"] = config
     ctx.obj["REGION"] = region
@@ -480,13 +614,13 @@ def cli(ctx, config, region, debug):
 
 @cli.command()
 @click.pass_context
-def serve(ctx) -> None:
+def serve(ctx: click.core.Context) -> None:
     if ctx.obj["DEBUG"]:
         with open(ctx.obj["CONFIG"]) as f:
             args = json.load(f)
         args = Namespace(**args)
         if not exists_smooth_h5s(
-            args.tile_filter, args.basedir, getattr(args, "collection", "006")
+            app_state.product, args.tile_filter, args.basedir, getattr(args, "collection", "006")
         ):
             raise SystemExit(
                 "Cannot run a full time step increment on an uninitialised archive! Run the init command first or run "
@@ -498,21 +632,23 @@ def serve(ctx) -> None:
             do_processing(args, only_one_inc=True)
     else:
         flask_app = app_setup(ctx.obj["CONFIG"])
-        assert (
-            ctx.obj["REGION"] is None
-        ), "Cannot serve only a specific region! Please run with the debug flag."
+        assert ctx.obj["REGION"] is None, (
+            "Cannot serve only a specific region! Please run with the debug flag."
+        )
         flask_app.run(port=5001, threaded=False)  # Configure for single threaded request handling
 
 
 @cli.command()
 @click.pass_context
-def export(ctx) -> None:
+def export(ctx: click.core.Context) -> None:
     with open(ctx.obj["CONFIG"]) as f:
         args = json.load(f)
     args = Namespace(**args)
 
     # Check all tiles for a corresponding H5 archive in VIM/SMOOTH:
-    assert exists_smooth_h5s(args.tile_filter, args.basedir, getattr(args, "collection", "006"))
+    assert exists_smooth_h5s(
+        app_state.product, args.tile_filter, args.basedir, getattr(args, "collection", "006")
+    )
 
     if ctx.obj["REGION"]:
         args.region_only = ctx.obj["REGION"]
@@ -522,7 +658,7 @@ def export(ctx) -> None:
 
 @cli.command()
 @click.pass_context
-def smooth(ctx) -> None:
+def smooth(ctx: click.core.Context) -> None:
     with open(ctx.obj["CONFIG"]) as f:
         args = json.load(f)
     args = Namespace(**args)
@@ -534,7 +670,7 @@ def smooth(ctx) -> None:
 
 @cli.command()
 @click.pass_context
-def collect(ctx) -> None:
+def collect(ctx: click.core.Context) -> None:
     with open(ctx.obj["CONFIG"]) as f:
         args = json.load(f)
     args = Namespace(**args)
@@ -545,7 +681,7 @@ def collect(ctx) -> None:
 
 @cli.command()
 @click.pass_context
-def download(ctx) -> None:
+def download(ctx: click.core.Context) -> None:
     with open(ctx.obj["CONFIG"]) as f:
         args = json.load(f)
     args = Namespace(**args)
@@ -556,7 +692,18 @@ def download(ctx) -> None:
 
 @cli.command()
 @click.pass_context
-def reset(ctx) -> None:
+@click.option("--only-one-inc", is_flag=True, default=False)
+def forward(ctx: click.core.Context, only_one_inc: bool) -> None:
+    with open(ctx.obj["CONFIG"]) as f:
+        args = json.load(f)
+    args = Namespace(**args)
+    assert ctx.obj["REGION"] is None, "Cannot download for only a specific region!"
+    do_processing(args, only_one_inc)
+
+
+@cli.command()
+@click.pass_context
+def reset(ctx: click.core.Context) -> None:
     with open(ctx.obj["CONFIG"]) as f:
         args = json.load(f)
     args = Namespace(**args)
@@ -579,20 +726,19 @@ def reset(ctx) -> None:
 
 @cli.command()
 @click.pass_context
-def check(ctx) -> None:
+def check(ctx: click.core.Context) -> None:
     with open(ctx.obj["CONFIG"]) as f:
         args = json.load(f)
     args = Namespace(**args)
     assert ctx.obj["REGION"] is None, "Cannot reset for only a specific region!"
 
-    products = ["M?D13A2"]
-    products_parsed = []
+    products = []
     for product_code in products:
-        if "M?D" in product_code.upper():
-            products_parsed.append(product_code.replace("?", "O").upper())
-            products_parsed.append(product_code.replace("?", "Y").upper())
+        if str(args.product).upper().startswith("M?D"):
+            products.append(f"MOD{str(args.product)[3:]}".upper())
+            products.append(f"MYD{str(args.product)[3:]}".upper())
         else:
-            products_parsed.append(product_code.upper())
+            products.append(str(args.product).upper())
 
     begin_date = ModisInterleavedOctad(datetime.strptime(args.init_start_date, "%Y-%m-%d").date())
     end_date = min([date.today(), begin_date.nextYear().prev().getDateTimeStart().date()])
@@ -600,7 +746,7 @@ def check(ctx) -> None:
     while begin_date < end_date:
         log.info("Querying: {} - {}...".format(begin_date, end_date))
         q = ModisQuery(
-            products=products_parsed,
+            products=products,
             aoi=None,
             begindate=datetime.combine(begin_date, datetime.min.time()),
             enddate=datetime.combine(end_date, datetime.min.time()),
@@ -650,7 +796,7 @@ def check(ctx) -> None:
 )
 @click.pass_context
 def init(
-    ctx,
+    ctx: click.core.Context,
     download_only,
     download_and_collect_only,
     smooth_only,
@@ -664,7 +810,7 @@ def init(
 
     if ctx.obj["REGION"] is not None:
         assert export_only and exists_smooth_h5s(
-            args.tile_filter, args.basedir, getattr(args, "collection", "006")
+            app_state.product, args.tile_filter, args.basedir, getattr(args, "collection", "006")
         ), "Can only do export for a specific region on a initialised archive!"
         args.region_only = ctx.obj["REGION"]
 
@@ -696,13 +842,13 @@ def do_init(args: Namespace):
             end_date = min([end_date, begin_date.nextYear().prev().getDateTimeStart().date()])
 
         begin_date = begin_date.getDateTimeStart().date()
-        while begin_date < end_date:
+        while begin_date <= end_date:
             if getattr(args, "suspended", False):
                 return
 
             log.info("Downloading: {} - {}...".format(begin_date, end_date))
             downloads = modis_download.callback(
-                products=["M?D13A2"],
+                products=[args.product],
                 begin_date=datetime.combine(begin_date, datetime.min.time()),
                 end_date=datetime.combine(end_date, datetime.min.time()),
                 targetdir=args.basedir,
@@ -734,10 +880,28 @@ def do_init(args: Namespace):
             if any_download_missing:
                 return
 
-            if getattr(args, "download_only", False):
-                return
             # Check download: for ALL distinct dates: is there a download for EACH selected tile? 2022-03-11: we allow 1 missing
-            if not curate_downloads(args.basedir, args.tile_filter, begin_date, end_date, 0):
+            curated = curate_downloads(args.basedir, args.tile_filter, begin_date, end_date, 0)
+            if not len(curated):
+                return
+
+            # Push curated set of files to S3:
+            if (
+                len(getattr(args, "bucket", "")) > 0
+                and len(getattr(args, "aws_access_key_id", "")) > 0
+                and len(getattr(args, "aws_secret_access_key", "")) > 0
+            ):
+                match = re.match(r"[Ss]3://([^/]+)/(.+)", getattr(args, "bucket", ""))
+                if match:
+                    upload_files_to_s3(
+                        curated,
+                        match.group(1),
+                        getattr(args, "aws_access_key_id", ""),
+                        getattr(args, "aws_secret_access_key", ""),
+                        match.group(2),
+                    )
+
+            if getattr(args, "download_only", False):
                 return
 
             # We're OK; now collect;
@@ -752,6 +916,7 @@ def do_init(args: Namespace):
                 force=False,
                 last_collected=None,
                 tiles_required=",".join(args.tile_filter),
+                report_collected=True,
             )
 
             # move on:
@@ -765,10 +930,12 @@ def do_init(args: Namespace):
             )
             begin_date = begin_date.getDateTimeStart().date()
 
-    if getattr(args, "download_and_collect_only", False):
+    if getattr(args, "download_and_collect_only", False) or getattr(args, "download_only", False):
         return
 
-    if not exists_smooth_h5s(args.tile_filter, args.basedir, getattr(args, "collection", "006")):
+    if not exists_smooth_h5s(
+        args.product, args.tile_filter, args.basedir, getattr(args, "collection", "006")
+    ):
         # Smooth and interpolate the collected archive
         # --------------------------------------------
 
@@ -780,18 +947,26 @@ def do_init(args: Namespace):
         ts = ModisInterleavedOctad(begin_date)
         while ts.getDateTimeStart().date() < begin_date:
             ts = ts.next()
-        while ts.getDateTimeStart().date() < end_date:
+        while ts.getDateTimeStart().date() <= end_date:
             dates.append(str(ts))
             ts = ts.next()
+        tile_has_collected_dates: dict[str, bool] = {}
         for tile in args.tile_filter:
-            assert has_collected_dates(
+            tile_has_collected_dates[tile] = has_collected_dates(
                 os.path.join(
                     args.basedir,
                     "VIM",
-                    "MXD13A2.{}.{}.VIM.h5".format(tile, getattr(args, "collection", "006")),
+                    "{}.{}.{}.VIM.h5".format(
+                        args.product, tile, getattr(args, "collection", "006")
+                    ),
                 ),
                 dates,
             )
+
+        for tile, _has_collected_dates in tile_has_collected_dates.items():
+            if not _has_collected_dates:
+                log.info("Raw .h5 archive for tile {} is incomplete".format(tile))
+        assert all(tile_has_collected_dates.values())
 
         modis_smooth.callback(
             src=os.path.join(args.basedir, "VIM"),
@@ -804,8 +979,9 @@ def do_init(args: Namespace):
             nsmooth=0,
             nupdate=0,
             soptimize=True,
+            sgrid=None,
             parallel_tiles=1,
-            last_collected=None,
+            last_collected=datetime.strptime(dates[-1], "%Y%j"),
         )
 
         if getattr(args, "smooth_only", False):
@@ -815,7 +991,22 @@ def do_init(args: Namespace):
     # ------------------------
 
     # Check all tiles for a corresponding H5 archive in VIM/SMOOTH:
-    assert exists_smooth_h5s(args.tile_filter, args.basedir, getattr(args, "collection", "006"))
+    assert exists_smooth_h5s(
+        args.product, args.tile_filter, args.basedir, getattr(args, "collection", "006")
+    )
+
+    export_octad = ModisInterleavedOctad(
+        get_last_date_in_raw_modis_tiles(os.path.join(args.basedir, "VIM"))
+    )
+    export_end_dekad = Dekad(export_octad.getDateTimeEnd(), True)
+    nexports = 1
+    while nexports < args.nupdate or (
+        Dekad(export_octad.prev().getDateTimeEnd(), True).Equals(export_end_dekad)
+        and nexports < (args.nupdate - 1)
+    ):
+        nexports += 1
+        export_octad = export_octad.prev()
+        export_end_dekad = Dekad(export_octad.getDateTimeEnd(), True)
 
     first_date = max(
         [
@@ -823,54 +1014,27 @@ def do_init(args: Namespace):
             datetime.strptime(args.init_start_date, "%Y-%m-%d").date(),
         ]
     )
-    last_date = datetime.combine(
-        get_last_date_in_raw_modis_tiles(os.path.join(args.basedir, "VIM")) + relativedelta(days=8),
-        datetime.min.time(),
-    )
+    export_start_dekad = Dekad(first_date)
+    while export_start_dekad.startsBeforeDate(first_date):
+        export_start_dekad = export_start_dekad.next()
 
-    if getattr(args, "export_end_date", None) is not None:
-        assert getattr(args, "export_end_date") <= last_date
-        last_date = getattr(args, "export_end_date")
-
-    export_slice = (
-        Dekad(first_date)
-        if getattr(args, "export_begin_date", None) is None
-        else Dekad(getattr(args, "export_begin_date"))
-    )
-    while export_slice.startsBeforeDate(first_date):
-        export_slice = export_slice.next()
-
-    to_slice = export_slice
-    cnt = 1
-    while True:
-        if cnt == 9 or to_slice.next().getDateTimeMid() > last_date:
-            # Batch-wise export: 9 dekads at a time
-            for region, roi in args.export.items():
-                if hasattr(args, "this_region_only") and args.this_region_only != region:
-                    continue
-                log.info(
-                    "{} -- Exporting {} to {} ...".format(region, str(export_slice), str(to_slice))
-                )
-                export_tifs(
-                    os.path.join(args.basedir, "VIM", "SMOOTH"),
-                    os.path.join(args.basedir, "VIM", "SMOOTH", "EXPORT"),
-                    export_slice,
-                    roi,
-                    region,
-                    FINAL="TRUE",
-                )
-
-        if to_slice.next().getDateTimeMid() > last_date:
-            # every date represents (a) the *mid* of the one composite and the *start* of the other
-            break
-
-        if cnt == 9:
-            export_slice = to_slice.next()
-            to_slice = export_slice
-            cnt = 1
-        else:
-            to_slice = to_slice.next()
-            cnt = cnt + 1
+    for region, roi in args.export.items():
+        if getattr(args, "region_only", region) != region:
+            continue
+        log.info(
+            "{} -- Exporting {} to {} ...".format(
+                region, str(export_start_dekad), str(export_end_dekad)
+            )
+        )
+        export_tifs(
+            os.path.join(args.basedir, "VIM", "SMOOTH"),
+            os.path.join(args.basedir, "VIM", "SMOOTH", "EXPORT"),
+            export_start_dekad,
+            export_end_dekad,
+            roi,
+            region,
+            FINAL="TRUE",
+        )
 
 
 if __name__ == "__main__":

@@ -7,7 +7,7 @@ classifiers = [
     "Private :: Do Not Upload",
 ]
 dependencies = [
-  "numpy<2.0.0",
+  "numpy",
 #    "gdal",
   "requests==2.32.5",
   "Werkzeug>=2.2,<3.0",

@@ -1,15 +1,28 @@
 # Suggested to run with --force-recreate (recreating the container): docker-compose up --force-recreate
-version: '3.5'
 
 services:
   arc_modape_chain:
     build:
       context: .
-      dockerfile: ./.devcontainer/Dockerfile
+      dockerfile: Dockerfile
+      target: production
+      args:
+        - USER_NAME=ubuntu
+        - USER_UID=1000
     volumes:
-      - .:/app/chain
+      - .:/arc_modape_chain
       - ./storage:/var/storage    
-    command: bash -c "cd /app && git clone https://github.com/WFP-VAM/modape.git && cd modape && git checkout -b v1.0rc origin/v1.0rc && pip install . && cd /app/chain && gunicorn --workers=1 --threads=1 --bind 0.0.0.0:5001 wsgi:arc_modis_ndvi_server" 
+    command: >
+      bash -c "python -m venv --system-site-packages /tmp/.venv 
+        source /tmp/.venv/bin/activate
+        pip install --upgrade pip
+        pip install /arc_modape_chain/modape
+        pip install /arc_modape_chain
+        pip install -I gunicorn
+        mkdir -p /var/storage/FVIIRS2/log
+        export PYTHONUNBUFFERED=1
+        /tmp/.venv/bin/gunicorn --error-logfile /var/storage/FVIIRS2/log/processing.log --capture-output --workers=1 --threads=1 --bind 0.0.0.0:5001 'wsgi:arc_modape_chain(\"/arc_modape_chain/production.json\")'"
+    restart: unless-stopped
     container_name: arc_modape_chain_container
     ports:
       - 5001:5001

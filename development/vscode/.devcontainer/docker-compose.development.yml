@@ -1,6 +1,5 @@
 # Use this docker-compose file (or a symlink) in a .devcontainer folder
 # which should sit next to the amviewer Git repo checked out in folder "src"
-version: '3.8'
 
 services:
 
@@ -11,8 +10,7 @@ services:
       target: development
     container_name: {{service}}_devcontainer
     ports:
-      - "8080:5001"
-      - "8001:8001"
+      - "5001:5001"
     user: {{user}}
     restart: unless-stopped
     command: /usr/bin/tail -f /dev/null
@@ -20,4 +18,4 @@ services:
       - PYTHONUNBUFFERED=1
     volumes:
       - ../:/{{service}}
-      - ../storage:/storage
+      - ../storage:/var/storage

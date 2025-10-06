@@ -1,5 +1,6 @@
 {
   "app_name": "Africa MODIS NDVI @1km -- DEVELOPMENT",
+  "product": "VNP13A2",
   "nsmooth": 64,
   "nupdate": 3,
   "username": "africanriskcapacity",
@@ -11,9 +12,9 @@
     "h19v07",
     "h18v07"
   ],
-  "collection": "061",
-  "init_start_date": "2023-02-21",
-  "init_end_date": "2023-02-21",
+  "collection": "002",
+  "init_start_date": "2023-12-19",
+  "init_end_date": "2025-05-01",
   "expected_latency": 259200,
   "log_endpoint": "https://api.africariskview.org/log",
   "log_secret": "TTY665DE9U",
@@ -24,6 +25,10 @@
   "_comment_export": "[ minx, miny, maxx, maxy ]",
   "export": {
     "NIGER": [0.0, 11.0, 16.0, 24.0]
-  }
+  },
+  "mirror": "/var/storage/arc_modis_ndvi/mirror",
+  "bucket": "s3://modape/FVIIRS2_2509",
+  "aws_access_key_id": "A_K_I_A4WIU76VTYEO4Q445",
+  "aws_secret_access_key": "ZAxR7VMYKN9IHkjqlF9Vxc0lZQEZgt7CJ0ATAFl8"
 }
 

@@ -1,10 +1,11 @@
 {
-  "app_name": "Africa MODIS NDVI @1km -- PRODUCTION",
+  "app_name": "ARC VIIRS Filtered NDVI @1km (FVIIRS2) -- PRODUCTION",
+  "product": "VNP13A2",
   "nsmooth": 64,
   "nupdate": 3,
   "username": "africanriskcapacity",
   "password": "Nasa4ARC!",
-  "basedir": "/var/storage/arc_modis_ndvi",
+  "basedir": "/var/storage/FVIIRS2",
   "tile_filter": [
     "h21v07",
     "h21v08",
@@ -53,19 +54,22 @@
     "h23v10",
     "h23v11"
   ],
-  "collection": "061",
-  "init_start_date": "2002-07-04",
-  "init_end_date": "2021-12-31",
+  "collection": "002",
+  "init_start_date": "2012-02-02",
+  "init_end_date": "2025-05-01",
   "expected_latency": 604800,
   "log_endpoint": "https://api.africariskview.org/log",
   "log_secret": "TTY665DE9U",
-  "log_source": "MODAPE Chain",
+  "log_source": "MODAPE Chain VIIRS",
   "log_channel": "DATASETS",
   "file_pattern": "*.tif",
   "mimetype": "application/octet-stream",
   "_comment_export": "[ minx, miny, maxx, maxy ]",
   "export": {
     "AFRICA": [-26.0, -35.0, 60.0, 38.0]
-  }
+  },
+  "bucket": "s3://modape/FVIIRS2_2509",
+  "aws_access_key_id": "A_K_I_A4WIU76VTYEO4Q445",
+  "aws_secret_access_key": "ZAxR7VMYKN9IHkjqlF9Vxc0lZQEZgt7CJ0ATAFl8"
 }
 

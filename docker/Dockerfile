@@ -77,9 +77,14 @@ RUN PIP_ROOT_USER_ACTION=ignore pip \
       gdal==3.2.0
 
 FROM build AS production
-ARG USERNAME=worker
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
-RUN groupadd --gid $USER_GID $USERNAME \
-  && useradd --no-log-init --uid $USER_UID --gid $USER_GID -m $USERNAME
+RUN apt-get update -y && \
+    apt-get install -y \
+      python3-venv curl wget \
+      iputils-ping
 
+ARG USER_NAME
+ARG USER_UID
+ARG USER_GID=$USER_UID
+RUN groupadd --gid $USER_GID $USER_NAME \
+  && useradd --no-log-init --uid $USER_UID --gid $USER_GID -m $USER_NAME
+USER $USER_NAME
