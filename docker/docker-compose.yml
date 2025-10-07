@@ -21,7 +21,7 @@ services:
         pip install -I gunicorn
         mkdir -p /var/storage/FVIIRS2/log
         export PYTHONUNBUFFERED=1
-        /tmp/.venv/bin/gunicorn --error-logfile /var/storage/FVIIRS2/log/processing.log --capture-output --workers=1 --threads=1 --bind 0.0.0.0:5001 'wsgi:arc_modape_chain(\"/arc_modape_chain/production.json\")'"
+        cd /arc_modape_chain && /tmp/.venv/bin/gunicorn --error-logfile /var/storage/FVIIRS2/log/processing.log --capture-output --workers=1 --threads=1 --bind 0.0.0.0:5001 'wsgi:arc_modape_chain(\"/arc_modape_chain/production.json\")'"
     restart: unless-stopped
     container_name: arc_modape_chain_container
     ports:
