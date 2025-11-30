@@ -19,18 +19,19 @@ RUN apt-get update \
 ENV PYTHONUNBUFFERED=1
 ENV CPUS=2
 
-COPY assets/* /usr/src/
-
+COPY assets/hdf-4.3.1.tar.gz /usr/src/
 RUN cd /usr/src && tar -xzf hdf-4.3.1.tar.gz && cd hdf-4.3.1 \
   && export CFLAGS="-fPIC -I/usr/include/tirpc" CXXFLAGS="-fPIC" LIBS="-ltirpc" \
   && ./configure --disable-netcdf --disable-fortran \
   && make && make install && cp -R hdf4 /opt \
   && ldconfig
 
+COPY assets/geos-3.8.1.tar.bz2 /usr/src/
 RUN cd /usr/src && tar -jxf geos-3.8.1.tar.bz2 && cd geos-3.8.1 \
   && ./configure && make && make install \
   && ldconfig
 
+COPY assets/proj-7.2.0.tar.gz /usr/src/
 RUN cd /usr/src && tar -xzf proj-7.2.0.tar.gz && cd proj-7.2.0 \
   && ./configure && make && make install \
   && ldconfig
@@ -62,6 +63,7 @@ RUN PIP_ROOT_USER_ACTION=ignore pip \
       "requests>=2" \
       "pycksum>=0.4.3"
 
+COPY assets/gdal-3.2.0.tar.gz /usr/src/
 RUN cd /usr/src && tar -xzf gdal-3.2.0.tar.gz && cd gdal-3.2.0 \
   && /bin/echo -e "40a41\n> #include <limits>" | patch ogr/ogrsf_frmts/cad/libopencad/dwg/r2000.cpp \
   && export LIBS="-ltirpc" \
