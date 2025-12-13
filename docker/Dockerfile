@@ -71,12 +71,9 @@ RUN cd /usr/src && tar -xzf gdal-3.2.0.tar.gz && cd gdal-3.2.0 \
   && CPPFLAGS=-I/opt/hdf4/include make && make install \
   && ldconfig
 
-RUN PIP_ROOT_USER_ACTION=ignore pip \
-    --trusted-host pypi.org \
-    --trusted-host pypi.python.org \
-    --trusted-host files.pythonhosted.org \
-    --no-cache-dir install \
-      gdal==3.2.0
+RUN cd /usr/src/gdal-3.2.0/swig/python \
+  && python3 setup.py build && python3 setup.py install \
+  && ldconfig
 
 FROM build AS production
 RUN apt-get update -y && \
