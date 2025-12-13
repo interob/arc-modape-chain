@@ -108,3 +108,4 @@ docenv/*
 
 .idea/
 .vscode/
+!development/vscode/.vscode

@@ -1,0 +1,168 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "init: download only",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/arc_modape_chain/arc_modape_chain.py",
+            "args": [
+                "--config",
+                "${workspaceFolder}/config/development_VIIRS.json",
+                "init",
+                "--download-only"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "init: download & collect",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/arc_modape_chain/arc_modape_chain.py",
+            "args": [
+                "--config",
+                "${workspaceFolder}/config/development_VIIRS.json",
+                "init",
+                "--download-and-collect-only"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "init: smooth",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/arc_modape_chain/arc_modape_chain.py",
+            "args": [
+                "--config",
+                "${workspaceFolder}/config/development_VIIRS.json",
+                "init",
+                "--smooth-only"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "init: export",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/arc_modape_chain/arc_modape_chain.py",
+            "args": [
+                "--config",
+                "${workspaceFolder}/config/development_VIIRS.json",
+                "init",
+                "--export-only"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "init: download + collect + smooth + export",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/arc_modape_chain/arc_modape_chain.py",
+            "args": [
+                "--config",
+                "${workspaceFolder}/config/development_VIIRS.json",
+                "init"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Forward processing: download next",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/arc_modape_chain/arc_modape_chain.py",
+            "args": [
+                "--config",
+                "${workspaceFolder}/config/development_VIIRS.json",
+                "download"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Forward processing: collect downloaded",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/arc_modape_chain/arc_modape_chain.py",
+            "args": [
+                "--config",
+                "${workspaceFolder}/config/development_VIIRS.json",
+                "collect"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Forward processing: smooth",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/arc_modape_chain/arc_modape_chain.py",
+            "args": [
+                "--config",
+                "${workspaceFolder}/config/development_VIIRS.json",
+                "smooth"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Forward processing: export",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/arc_modape_chain/arc_modape_chain.py",
+            "args": [
+                "--config",
+                "${workspaceFolder}/config/development_VIIRS.json",
+                "export"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Forward processing: download + collect + smooth + export",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/arc_modape_chain/arc_modape_chain.py",
+            "args": [
+                "--config",
+                "${workspaceFolder}/config/development_VIIRS.json",
+                "forward",
+                "--only-one-inc"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "check production archive",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/chain/arc_modape_chain.py",
+            "args": [
+                "--config",
+                "${workspaceFolder}/config/development_VIIRS.json",
+                "check"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Serve",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/arc_modape_chain/arc_modape_chain.py",
+            "args": [
+                "--config",
+                "${workspaceFolder}/config/development_VIIRS.json",
+                "serve"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Util: hash tifs",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/utils/md5hash.py",
+            "args": [
+                "/var/storage/VIM/SMOOTH/EXPORT",
+                "*.tif"
+            ],
+            "console": "integratedTerminal"
+        }
+    ]
+}
