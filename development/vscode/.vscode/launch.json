@@ -8,7 +8,7 @@
             "name": "init: download only",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/arc_modape_chain/arc_modape_chain.py",
+            "program": "${workspaceFolder}/arc_modape_chain/chain.py",
             "args": [
                 "--config",
                 "${workspaceFolder}/config/development_VIIRS.json",
@@ -21,7 +21,7 @@
             "name": "init: download & collect",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/arc_modape_chain/arc_modape_chain.py",
+            "program": "${workspaceFolder}/arc_modape_chain/chain.py",
             "args": [
                 "--config",
                 "${workspaceFolder}/config/development_VIIRS.json",
@@ -34,7 +34,7 @@
             "name": "init: smooth",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/arc_modape_chain/arc_modape_chain.py",
+            "program": "${workspaceFolder}/arc_modape_chain/chain.py",
             "args": [
                 "--config",
                 "${workspaceFolder}/config/development_VIIRS.json",
@@ -47,7 +47,7 @@
             "name": "init: export",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/arc_modape_chain/arc_modape_chain.py",
+            "program": "${workspaceFolder}/arc_modape_chain/chain.py",
             "args": [
                 "--config",
                 "${workspaceFolder}/config/development_VIIRS.json",
@@ -60,7 +60,7 @@
             "name": "init: download + collect + smooth + export",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/arc_modape_chain/arc_modape_chain.py",
+            "program": "${workspaceFolder}/arc_modape_chain/chain.py",
             "args": [
                 "--config",
                 "${workspaceFolder}/config/development_VIIRS.json",
@@ -72,7 +72,7 @@
             "name": "Forward processing: download next",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/arc_modape_chain/arc_modape_chain.py",
+            "program": "${workspaceFolder}/arc_modape_chain/chain.py",
             "args": [
                 "--config",
                 "${workspaceFolder}/config/development_VIIRS.json",
@@ -84,7 +84,7 @@
             "name": "Forward processing: collect downloaded",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/arc_modape_chain/arc_modape_chain.py",
+            "program": "${workspaceFolder}/arc_modape_chain/chain.py",
             "args": [
                 "--config",
                 "${workspaceFolder}/config/development_VIIRS.json",
@@ -96,7 +96,7 @@
             "name": "Forward processing: smooth",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/arc_modape_chain/arc_modape_chain.py",
+            "program": "${workspaceFolder}/arc_modape_chain/chain.py",
             "args": [
                 "--config",
                 "${workspaceFolder}/config/development_VIIRS.json",
@@ -108,7 +108,7 @@
             "name": "Forward processing: export",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/arc_modape_chain/arc_modape_chain.py",
+            "program": "${workspaceFolder}/arc_modape_chain/chain.py",
             "args": [
                 "--config",
                 "${workspaceFolder}/config/development_VIIRS.json",
@@ -120,7 +120,7 @@
             "name": "Forward processing: download + collect + smooth + export",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/arc_modape_chain/arc_modape_chain.py",
+            "program": "${workspaceFolder}/arc_modape_chain/chain.py",
             "args": [
                 "--config",
                 "${workspaceFolder}/config/development_VIIRS.json",
@@ -133,7 +133,7 @@
             "name": "check production archive",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/src/chain/arc_modape_chain.py",
+            "program": "${workspaceFolder}/src/arc_modape_chain/chain.py",
             "args": [
                 "--config",
                 "${workspaceFolder}/config/development_VIIRS.json",
@@ -145,7 +145,7 @@
             "name": "Serve",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/arc_modape_chain/arc_modape_chain.py",
+            "program": "${workspaceFolder}/arc_modape_chain/chain.py",
             "args": [
                 "--config",
                 "${workspaceFolder}/config/development_VIIRS.json",
@@ -161,6 +161,19 @@
             "args": [
                 "/var/storage/VIM/SMOOTH/EXPORT",
                 "*.tif"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "reproduce v19h08",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/arc_modape_chain/chain.py",
+            "args": [
+                "--config",
+                "${workspaceFolder}/scripts/reproducing_sgrid_2507/reproduce_h19v08.json",
+                "init",
+                "--download-and-collect-only"
             ],
             "console": "integratedTerminal"
         }

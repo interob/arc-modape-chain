@@ -1,0 +1,28 @@
+{
+  "app_name": "Reproducing SGrid over h19v08",
+  "product": "VNP13A2",
+  "nsmooth": 64,
+  "nupdate": 3,
+  "username": "africanriskcapacity",
+  "password": "Nasa4ARC!",
+  "basedir": "/var/storage/arc_fviirs_h19v08",
+  "tile_filter": [
+    "h19v08"
+  ],
+  "collection": "002",
+  "init_start_date": "2012-02-02",
+  "init_end_date": "2025-05-01",
+  "expected_latency": 259200,
+  "log_endpoint": "https://api.africariskview.org/log",
+  "log_secret": "TTY665DE9U",
+  "log_source": "MODAPE Chain",
+  "log_channel": "DATASETS",
+  "file_pattern": "*.tif",
+  "mimetype": "application/octet-stream",
+  "_comment_export": "[ minx, miny, maxx, maxy ]",
+  "export": {
+    "NIGER": [0.0, 11.0, 16.0, 24.0]
+  },
+  "mirror": "/var/storage/arc_fviirs_h19v08/mirror"
+}
+
