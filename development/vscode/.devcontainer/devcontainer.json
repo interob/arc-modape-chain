@@ -7,7 +7,7 @@
     "initializeCommand": "sed -e \"s/{{service}}/arc_modape_chain/ig\" -e \"s/{{user}}/$(id -un)/ig\" -e \"s#{{dockerfile}}#$(pwd)/.devcontainer/Dockerfile#ig\" -e \"s#{{context}}#$(pwd)/src/docker#ig\" ./src/development/vscode/.devcontainer/docker-compose.development.yml > ./.devcontainer/docker-compose.development.yml && cat ./src/docker/Dockerfile > ./.devcontainer/Dockerfile && sed -e \"s/{{user}}/$(id -un)/ig\" ./src/development/vscode/.devcontainer/DockerDevStage.template >> ./.devcontainer/Dockerfile",
     "updateRemoteUserUID": true,
     "workspaceFolder": "/arc_modape_chain/src",
-    "postCreateCommand": "sudo pip install pytest pytest-cov \"numpy<2\" \"pandas<2\" && sudo python -m pip install -e ../modape --break-system-packages && sudo python -m pip install -e .[dev] --break-system-packages",
+    "postCreateCommand": "sudo pip install pytest pytest-cov \"numpy<2\" \"pandas<2\" && sudo python -m pip install --no-build-isolation --break-system-packages -e ../modape && sudo python -m pip install --no-build-isolation --break-system-packages -e .[dev]",
     "customizations": {
         "vscode": {
             "extensions": [
