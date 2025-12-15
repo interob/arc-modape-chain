@@ -19,7 +19,7 @@ if [[ $resuming_from =~ ^[[:space:]]*$ ]]
 then
   modis_download --download --multithread \
     --username=$CMR_USERNAME --password=$CMR_PASSWORD \
-    --robust --target-empty --match-begin --collection 002 \
+    --target-empty --match-begin --collection 002 \
     --tile-filter $TILES -b 2012-02-02 -e 2013-01-25 VNP13A2
   modis_collect --cleanup .
   resuming_from="2013025"
@@ -32,7 +32,7 @@ if [ $resuming_from -le 2013025 ]
 then
   modis_download --download --multithread \
     --username=$CMR_USERNAME --password=$CMR_PASSWORD \
-    --robust --target-empty --match-begin --collection 002 \
+    --target-empty --match-begin --collection 002 \
     --tile-filter $TILES -b 2013-02-02 -e 2014-01-25 VNP13A2
   modis_collect --cleanup --last-collected 2013025 .
 fi
@@ -40,7 +40,7 @@ if [ $resuming_from -le 2014025 ]
 then
   modis_download --download --multithread \
     --username=$CMR_USERNAME --password=$CMR_PASSWORD \
-    --robust --target-empty --match-begin --collection 002 \
+    --target-empty --match-begin --collection 002 \
     --tile-filter $TILES -b 2014-02-02 -e 2015-01-25 VNP13A2
   modis_collect --cleanup --last-collected 2014025 .
 fi
@@ -48,7 +48,7 @@ if [ $resuming_from -le 2015025 ]
 then
   modis_download --download --multithread \
     --username=$CMR_USERNAME --password=$CMR_PASSWORD \
-    --robust --target-empty --match-begin --collection 002 \
+    --target-empty --match-begin --collection 002 \
     --tile-filter $TILES -b 2015-02-02 -e 2016-01-25 VNP13A2
   modis_collect --cleanup --last-collected 2015025 .
 fi
@@ -56,7 +56,7 @@ if [ $resuming_from -le 2016025 ]
 then
   modis_download --download --multithread \
     --username=$CMR_USERNAME --password=$CMR_PASSWORD \
-    --robust --target-empty --match-begin --collection 002 \
+    --target-empty --match-begin --collection 002 \
     --tile-filter $TILES -b 2016-02-02 -e 2017-01-25 VNP13A2
   modis_collect --cleanup --last-collected 2016025 .
 fi
@@ -64,7 +64,7 @@ if [ $resuming_from -le 2017025 ]
 then
   modis_download --download --multithread \
     --username=$CMR_USERNAME --password=$CMR_PASSWORD \
-    --robust --target-empty --match-begin --collection 002 \
+    --target-empty --match-begin --collection 002 \
     --tile-filter $TILES -b 2017-02-02 -e 2018-01-25 VNP13A2
   modis_collect --cleanup --last-collected 2017025 .
 fi
