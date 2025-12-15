@@ -12,7 +12,8 @@ dependencies = [
   "requests==2.32.5",
   "Werkzeug>=2.2,<3.0",
   "flask==2.0.3",
-  "modape==1.2.0",
+#  "modape==1.2.0",
+  "modape",
   "boto3"
 ]
 
